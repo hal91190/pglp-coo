@@ -1,0 +1,53 @@
+= Bonnes pratiques de développement logiciel
+== Optimiser la session de développement
+* Automatiser ce qui peut l'être
+** les tâches (importantes ou insignifiantes) répétitives, pénibles ou fastidieuses doivent être automatisées
+** raccourcis clavier, snippets/live templates, refactoring (rename)
+** profiter de la ligne de commande (_shell_), _alias_
+* Réduire le nombre de changements de contextes (context switches)
+** gérer les distractions (sollicitations extérieures)
+** apprendre à taper au clavier
+** optimiser l'usage du clavier
+** à l'extrême, pas de déplacement des mains (cf. vim ou vi mode pour les IDE)
+** Réduire les temps d'attente (compilations, ...)
+
+NOTE: https://youtu.be/7GKZhqiAxaI?si=p8KJ2zDYdszXITfZ[Principles of effective developers], Sebastian Daschner, Voxxed Days CERN 2024
+
+== Un peu de lecture
+* https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/[Effective Java], Joshua Bloch
+* https://www.oreilly.com/library/view/clean-code-a/9780136083238/[Clean Code: A Handbook of Agile Software Craftsmanship], Robert C. Martin
+* https://www.oreilly.com/library/view/code-complete-2nd/0735619670/[Code Complete: A Practical Handbook of Software Construction], Steve McConnell
+* https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/[The Pragmatic Programmer: Your Journey to Mastery], Andrew Hunt and David Thomas
+
+== Quelques exemples
+* **Creating Your Own Types** (Code Complete sect. 12.9)
+"Programmer-defined variable types are one of the most powerful capabilities a language can give you to clarify your understanding of a program. They protect your program against unforeseen changes and make it easier to read—all without requiring you to design, construct, and test new classes."
+* **To Comment or Not to Comment** (Code Complete sect. 32.3)
+"Comments are easier to write poorly than well, and commenting can be more damaging than helpful."
+* **Comments Do Not Make Up for Bad Code/Explain Yourself in Code** (Clean Code p. 55)
+"One of the more common motivations for writing comments is bad code.
+We write a module and we know it is confusing and disorganized.
+We know it’s a mess.
+So we say to ourselves, “Ooh, I’d better comment that!” No! You’d better clean it!"
+* **Function Arguments** (Clean Code p. 40)
+"The ideal number of arguments for a function is zero (niladic). Next comes one (monadic), followed closely by two (dyadic). Three arguments (triadic) should be avoided where possible. More than three (polyadic) requires very special justiﬁcation—and then shouldn’t be used anyway."
+* **Make defensive copies when needed** (Effective Java Item 50)
+"You must program defensively, with the assumption that clients of your class will do their best to destroy its invariants.
+[...] your class will have to cope with unexpected behavior resulting from the honest mistakes of well-intentioned programmers."
+* **Avoid float and double if exact answers are required** (Effective Java Item 60)
+"The float and double types do not, however, provide exact results and should not be used where exact results are required.
+The float and double types are particularly ill-suited for monetary calculations"
+* **Avoid strings where other types are more appropriate** (Effective Java Item 62)
+"Strings are poor substitutes for other value types.
+if there’s an appropriate value type, whether primitive or object reference, you should use it;
+if there isn’t, you should write one."
+* **Beware the performance of string concatenation** (Effective Java Item 63)
+"The string concatenation operator (+) is fine for generating a single line of output or constructing
+the string representation of a small, fixed-size object, but it does not scale.
+Using the string concatenation operator repeatedly to concatenate n strings requires time quadratic in n."
+(cf. https://youtu.be/w56RUzBLaRE?si=jxD_L_tgGq1u5kXi[String Concatenation - JEP Café #7], José Paumard)
+* **https://media.pragprog.com/titles/tpp20/dry.pdf[DRY: The Evils of Duplication]** (Pragmatic Programmer)
+"_Every piece of knowledge must have a single, unambiguous, authoritative representation within a system._
+The alternative is to have the same thing expressed in two or more places.
+If you change one, you have to remember to change the others.
+It isn’t a question of whether you’ll remember: it’s a question of when you’ll forget."

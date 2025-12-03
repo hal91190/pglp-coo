@@ -1,0 +1,60 @@
+= Introduction à la conception logicielle
+
+== Objectifs du cours
+* Maîtriser les bases de la conception orientée-objet
+* Connaître différentes approches pour la persistance des objets
+
+== Prérequis
+* Connaître un langage de programmation objet
+* Connaître la notation UML
+* Connaître les outils de développement de base (https://git-scm.com/[git], https://maven.apache.org/[maven], …)
+
+== Plan général
+* Principes de conception orientée-objet
+* Patterns de conception (_Design Patterns_)
+* Persistance des objets
+
+== Conception orientée-objet
+* Lors de son exécution, un _système OO_ est *un ensemble d’objets qui interagissent*
+* La _conception orientée-objet_ (COO) consiste donc à créer un _modèle_ qui respecte les concepts objet
+
+== Difficultés de la conception orientée-objet
+* Les concepts objets sont nombreux et complexes (attribut, méthode, objet, classe, héritage, …)
+** plusieurs solutions sont en général envisageables
+* Identifier la bonne solution est difficile
+* Plusieurs symptômes voire métriques de qualité peuvent guider les choix
+
+[CAUTION]
+.Programmer en Java, C++ ou C# n’est pas concevoir objet !
+====
+* Seule une analyse objet conduit à une solution objet, i.e. qui respecte les concepts objet
+* Le langage de programmation est un moyen d’implémentation qui ne garantit pas le respect des concepts objet
+====
+
+== Symptôme d’une conception défectueuse
+[horizontal]
+Rigidité:: résistance aux changements
+  * un simple changement provoque une cascade de modification dans les modules dépendants
+  * génère des réticences à se lancer dans des modifications
+Fragilité::tendance du logiciel à avoir des défaillances lors de changements
+  * défaillance même dans des régions non directement liées au changement
+  * rend la maintenance difficile
+Immobiblité:: impossibilité de réutiliser des modules
+  * les modules sont tellement dépendants qu’il est très difficile de les utiliser dans un contexte différent
+Viscosité:: un changement qui respecte la conception est plus difficile à réaliser qu’un bricolage (_hack_)
+
+== Anticiper les changements
+* La cause des problèmes de conception est liée aux changements dans les besoins du client
+* Les évolutions sont faites sans forcément respecter la conception initiale
+* Les changements (certains au moins) doivent donc être anticipés durant la conception
+
+== Gestion des dépendances
+* Les changements qui génèrent des problèmes sont les modifications inattendues dans les dépendances
+* Ces dernières doivent donc être gérées durant la conception
+* Les principes et les patterns de conception sont principalement liés aux dépendances
+
+== Principes, patterns et idiomes
+* Principes généraux: KISS, YAGNI, DRY, Law of Demeter, …
+* Principes de COO: Principes SOLID/Patterns GRASP
+* Patterns: Design Patterns, …
+* Idiomes

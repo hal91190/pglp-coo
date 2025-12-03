@@ -1,0 +1,21 @@
+= Design patterns
+ifndef::masterdoc[]
+include::../meta.adoc[]
+include::../attributes.adoc[]
+endif::masterdoc[]
+
+:leveloffset: +1
+
+include::intro.adoc[]
+
+include::creational.adoc[]
+
+include::structural.adoc[]
+
+include::behavioral.adoc[]
+
+include::visitor.adoc[]
+
+include::exercises.adoc[]
+
+:leveloffset: -1

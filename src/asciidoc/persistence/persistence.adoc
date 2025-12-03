@@ -1,0 +1,21 @@
+= Persistance
+ifndef::masterdoc[]
+include::../meta.adoc[]
+include::../attributes.adoc[]
+endif::masterdoc[]
+
+:leveloffset: +1
+
+include::intro.adoc[]
+
+include::serialization.adoc[]
+
+include::jdbc.adoc[]
+
+include::dao.adoc[]
+
+include::orm.adoc[]
+
+include::exercises.adoc[]
+
+:leveloffset: -1

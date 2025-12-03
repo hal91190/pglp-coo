@@ -1,0 +1,241 @@
+= Mapping objet-relationnel
+
+== Mapping objet-relationnel
+* Le _mapping objet-relationnel_ (_Object-relational mapping_ ou _ORM_) est une approche pour la persistance
+* Elle vise à combler l’écart entre une BD relationnelle et un langage de programmation OO
+** fournit une BD objet virtuelle au niveau du langage de programmation
+** est établi en définissant des correspondances entre modèle objet et modèle relationnel
+** ces dernières sont définies à partir des règles de transformations de modèles
+* Les outils existant (_ORM frameworks_) évitent de manipuler des requêtes SQL dans l’application
+* Un objet marqué comme persistant est automatiquement stocké dans la BD (et mis à jour)
+
+== Standard ey produits
+.Standards
+* https://jcp.org/en/jsr/detail?id=338[Java Persistence API] (JPA)
+
+.Quelques produits
+* http://www.eclipse.org/eclipselink/[EclipseLink]
+* http://www.oracle.com/technetwork/middleware/toplink/overview/index.html[Oracle
+TopLink]
+* http://hibernate.org/orm/[Hibernate ORM]
+* http://www.datanucleus.org/[DataNucleus]
+
+== Java Persistence API
+* La spécification _Java Persistence API_ (_JPA_) fournit un modèle de persistance pour les objets Java (POJO) basé l’ORM
+* Permet de s’abstraire de l’implémentation de l’ORM et non plus simplement du SGBD
+* Les mappings peuvent être spécifié en XML ou grâce aux annotations
+* Fournit un langage d’interrogation _SQL-like_ (_JPQL_)
+* Se trouve dans le package `+javax.persistence+`
+* Disponible pour _Java SE_ et _Java EE_
+* L’implémentation de référence est http://www.eclipse.org/eclipselink/[EclipseLink]
+
+== Historique de la persistance en Java
+[horizontal]
+2001:: _Hibernate 1_
+2002:: _JDO 1.0_ https://www.jcp.org/en/jsr/detail?id=12[JSR 12] (_Java Data Objects_)
+2003:: _Hibernate 2_
+2006:: _JPA 1.0_ fait partie du https://jcp.org/en/jsr/detail?id=220[JSR 220] (_EJB3_), _JDO 2.0_ https://www.jcp.org/en/jsr/detail?id=243[JSR 243] (_Java Data Objects 2.0_)
+2009:: _JPA 2.0_ https://jcp.org/en/jsr/detail?id=317[JSR 317] (_Java Persistence 2.0_), _SDO_ https://www.jcp.org/en/jsr/detail?id=235[JSR 235] (_Service Data Objects_)
+2010:: _JDO 3.0_ (_maintenance release_)
+2013:: _JPA 2.1_ https://jcp.org/en/jsr/detail?id=338[JSR 338] (_Java Persistence 2.1_)
+2015:: _Hibernate 5_
+
+== Technologies liées
+[horizontal]
+EJB:: _Enterprise Java Beans_ encapsule la couche domaine
++
+* initialement, JPA était incluse dans EJB 3.0
+* JPA ne nécessite pas de conteneur latexmath:[\Rightarrow] rendue indépendante
+JDO:: _Java Data Object_ gère la persistance de façon transparente et non limitée à l’ORM
++
+* JPA se focalise sur l’ORM
+* initialement, JPA s’est inspiré sur JDO
+SDO:: _Service Data Objects_ est conçu pour SOA et complémentaire de JPA
++
+* non limité à l’ORM
+* supporte plusieurs langages de programmation
+Hibernate:: est un ORM open source
++
+* JPA s’est inspiré des premières versions
+* Hibernate est une implémentation de JPA
+
+== Principaux composants
+[horizontal]
+`+Persistence+`:: fournit une méthode de classe pour la création d’un `+EntityManagerFactory+`
+`+EntityManagerFactory+`:: initialise et donne accès aux autres fonctionnalités (ouverture de sessions)
+`+EntityManager+`:: représente une unité de travail avec la BD
+`+EntityTransaction+`:: contrôle la transaction
+`+Query+`:: permet l’interrogation de la BD
+
+== Unité de persistance
+* Une _unité de persistance_ (_persistence unit_) configure l’accès au SGBD pour un ensemble d’entités
+* Elle est décrite dans le fichier XML `+META-INF/persistence.xml+`
+
+== Unité de persistanceExemple de `+persistence.xml+`
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+    version="2.0">
+    <persistence-unit name="todos" transaction-type="RESOURCE_LOCAL">
+        <class>de.vogella.jpa.simple.model.Todo</class>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:derby:/home/vogella/databases/simpleDb;create=true" />
+            <property name="javax.persistence.jdbc.user" value="test" />
+            <property name="javax.persistence.jdbc.password" value="test" />
+        
+            <!-- EclipseLink should create the database schema automatically -->
+            <property name="eclipselink.ddl-generation" value="create-tables" />
+            <property name="eclipselink.ddl-generation.output-mode"value="database" />
+        </properties>
+    </persistence-unit>
+</persistence> 
+----
+
+== Unité de persistance: Exemple d’utilisation
+[source,java]
+----
+public class Main {
+    private static final String PERSISTENCE_UNIT_NAME = "todos";
+    private static EntityManagerFactory factory;
+
+    public static void main(String[] args) {
+        factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
+        // ...
+    }
+} 
+----
+
+== Gestionnaire d’entité
+* Le _gestionnaire d’entités_ (_entity manager_) se charge des opérations sur la BD
+* La classe `+javax.persistence.EntityManager+` expose les méthodes nécessaires pour cela
+
+[source,java]
+----
+EntityManager em = factory.createEntityManager();
+em.getTransaction().begin();
+Todo todo = new Todo();
+todo.setSummary("This is a test");
+todo.setDescription("This is a test");
+em.persist(todo);
+em.getTransaction().commit();
+em.close();
+----
+
+== Entité
+* Une _entité_ (_entity_) est une classe qui doit être persistante
+* Elle doit être marquée avec l’annotation `+javax.persistence.Entity+`
+* JPA va associer chaque entité avec une table de la BD
+** même nom que la classe sauf si `+@Table(name="NEWTABLENAME")+` est précisé
+* Chaque instance de l’entité sera un tuple de la table
+
+== Contraintes sur les entités
+* Toutes les entités doivent
+** posséder une clé primaire,
+** avoir un constructeur par défaut (`+public+` ou `+protected+`),
+** ne pas être `+final+`
+* Les attributs persistants ne doivent pas être `+final+`, ni `+public+`
+
+== Persistance des attributs
+* Par défaut, tous les attributs sont sauvegardés
+** même nom que l’attribut sauf si `+@Column(name="newColumnName")+` est précisé
+* La clé primaire est marquée par `+@Id+`
+** les valeurs peuvent être générée (`+@GeneratedValue+`)
+* L’annotation `+@Transient+` permet d’ignorer un attribut lors de la sauvegarde
+
+== Persistance des attributs: Exemple
+[source,java]
+----
+@Entity
+public class Todo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String summary;
+    private String description;
+
+    public String getSummary() { return summary; }
+    public void setSummary(String summary) { this.summary = summary; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    @Override
+    public String toString() {
+        return "Todo [summary=" + summary + ", description=" + description + "]";
+    }
+} 
+----
+
+== Attribut multivalué et composé
+* Un attribut composé d’un type qui n’est pas une entité doit être annoté par `+@Embedded+`
+* La classe décrivant ce type est quant à elle annotée avec `+@Embeddable+`
+* Un attribut multivalué d’un type de base ou embarqué doit être annoté par `+@ElementCollection+`
+
+== Association
+* Les associations peuvent être définies avec les annotations `+@OneToOne+`, `+@OneToMany+`, `+@ManyToOne+`, `+@ManyToMany+`
+* Une association peut être unidirectionnelle ou bidirectionnelle
+* Pour ce dernier cas, l’association est spécifiée dans les deux classes avec d’un côté l’attribut `+mappedBy+`
+
+== Association: Exemple 1/2
+[source,java]
+----
+@Entity
+public class Todo {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String summary;
+    private String description;
+    private Task task;
+} 
+----
+
+== Association: Exemple 2/2
+[source,java]
+----
+@Entity
+public class Task {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    
+    @OneToMany(mappedBy = "task")
+    private final List<Task> todos;
+} 
+----
+
+== Interrogation avec JPQL
+* La méthode `+EntityManager.createQuery+` permet de créer une requête dynamiquement
+* La méthode `+EntityManager.createNamedQuery+` permet d’instancier une requête nommée
+* Une requête peut être paramétrée par nom (latexmath:[:nom]) ou par position (latexmath:[?1])
+
+== Interrogation avec JPQL: Exemple de requête dynamique
+[source,java]
+----
+public List findWithName(String name) {
+    return em.createQuery("SELECT c FROM Customer c WHERE c.name LIKE :custName")
+        .setParameter("custName", name)
+        .setMaxResults(10)
+        .getResultList();
+}
+----
+
+== Interrogation avec JPQL: Exemple de requête nommée
+.Sur l’entité
+[source,java]
+----
+@NamedQuery(name="findAllCustomersWithName",
+    query="SELECT c FROM Customer c WHERE c.name LIKE :custName")
+----
+
+.Lors de l’interrogation
+[source,java]
+----
+customers = em.createNamedQuery("findAllCustomersWithName")
+    .setParameter("custName", "Smith")
+    .getResultList();
+----

@@ -1,0 +1,52 @@
+= Introduction
+== Qu’est-ce que la persistance ?
+.Persistance
+En POO, la _persistance_ est la propriété permettant à un objet de continuer à exister après la destruction de son créateur.
+
+* C’est la capacité de sauvegarder l’état des objets, i.e. les données finales de l’application
+* La persistance est dite _orthogonale_ ou _transparente_ si la propriété est intrinsèque à l’environnement d’exécution
+
+== Difficultés liées à la persistance
+* La persistance nécessite de définir des correspondances (_mappings_) entre des structures en mémoire et des structures persistantes
+** peut être complexe si les modèles diffèrent (c’est le cas en général)
+* Comment sauvegarder l’état d’un objet ?
+* Comment gérer les références (en mémoire) ?
+* Comment gérer les _handles_ vers des ressources (fichiers, …) ?
+* Comment recréer les bonnes structure lors de la restauration ?
+
+== Object-Relational impedance mismatch
+_Les applications sont écrites dans un langage objet_
+
+_Les données sont stockées dans des SGBD relationnels_
+
+[cols="<,<,<",options="header",]
+|===
+| |Modèle objet |Modèle relationnel
+|Fondements |Concepts OO |Théorie des ensembles
+|Types |Complexes et déf. par l’utilisateur |1NF et prédéfinis
+|Accès |Navigation |Requête
+|Identification |id. d’objet |Clé
+|===
+
+== Alternatives pour la persistance
+* Bibliothèque d’E/S du langage + sérialisation
+* Interfaçage avec un SGBD
+** API de bas niveau
+(https://en.wikipedia.org/wiki/Java_Database_Connectivity[JDBC],
+https://en.wikipedia.org/wiki/Open_Database_Connectivity[ODBC], …)
+** API de haut niveau
+(http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html[JPA],
+http://www.oracle.com/technetwork/java/index-jsp-135919.html[JDO],
+https://fr.wikipedia.org/wiki/Service_Data_Objects[SDO])
+** _Mapping objet-relationnel_ (ORM)
+** API REST
+
+== Comparaison des approches
+[cols="<,^,^,^,^",options="header",]
+|===
+|Approche |Simplicité |Transparence |Contrôle |Fonctionnalités
+|Sérialisation |+ |– |++ |–
+|API de bas niveau |++ |– |++ |+
+|API de haut niveau |- |++ |- |+
+|ORM |- |++ |- |++
+|===

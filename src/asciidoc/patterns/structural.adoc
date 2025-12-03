@@ -1,0 +1,172 @@
+= Patrons de structure
+
+== Le patron de conception Composite
+.Objectif
+Composite permet de manipuler un groupe d’objets de la même façon qu’un objet simple.
+
+* Il permet de créer des structures hiérarchiques pour des relations _tout-partie_.
+
+== Structure du Composite
+.Structure du Composite.
+[#fig:compositedp]
+image::compositedp.png[]
+
+== Exemple 1/4: Une forme en Java
+[source,java]
+----
+interface Graphic { // Component
+    public void print();
+}
+----
+
+== Exemple 2/4: Ellipse dérive de forme
+[source,java]
+----
+class Ellipse implements Graphic { // Leaf
+    @Override
+    public void print() {
+        System.out.println("Ellipse");
+    }
+}
+----
+
+== Exemple 3/4: Le composite dérive de forme
+[source,java]
+----
+class CompositeGraphic implements Graphic { // Composite
+    private List<Graphic> childGraphics = new ArrayList<Graphic>();
+
+    @Override
+    public void print() {
+        for (Graphic graphic : childGraphics) {
+            graphic.print();
+        }
+    }
+
+    public void add(Graphic graphic) {
+        childGraphics.add(graphic);
+    }
+
+    public void remove(Graphic graphic) {
+        childGraphics.remove(graphic);
+    }
+}
+----
+
+== Exemple 4/4: Utilisation
+[source,java]
+----
+Ellipse ellipse1 = new Ellipse();
+Ellipse ellipse2 = new Ellipse();
+Ellipse ellipse3 = new Ellipse();
+Ellipse ellipse4 = new Ellipse();
+
+CompositeGraphic graphic = new CompositeGraphic();
+CompositeGraphic graphic1 = new CompositeGraphic();
+CompositeGraphic graphic2 = new CompositeGraphic();
+
+graphic1.add(ellipse1);
+graphic1.add(ellipse2);
+graphic1.add(ellipse3);
+
+graphic2.add(ellipse4);
+
+graphic.add(graphic1);
+graphic.add(graphic2);
+
+graphic.print(); // affiche la hiérarchie
+----
+
+== Le patron de conception Adapter
+.Objectif
+Adapter permet à une classe d’être utilisée avec une interface qui n’est pas la sienne.
+Il permet d’utiliser ensemble des interfaces incompatibles.
+
+.Structure du Adapter.
+[#fig:adapterdp]
+image::adaptateur.png[]
+
+== Exemple: Les classes _wrapper_ pour les types de bases en Java
+.`+Integer+` vu comme un Adapter.
+[#fig:adapterint]
+image::adaptateur_int.png[]
+
+== Exemple 1/2: Écouteur d’évènements et Adapter
+[source,java]
+----
+public class MouseBeeper extends MouseAdapter {
+    public void mouseClicked(MouseEvent e) {
+        Toolkit.getDefaultToolkit().beep();
+    }
+}
+----
+
+== Exemple 2/2: Écouteur d’évènements et Adapter
+[source,java]
+----
+public class MouseBeeper implements MouseListener {
+    public void mouseClicked(MouseEvent e) {
+        Toolkit.getDefaultToolkit().beep();
+    }
+    
+    public void mousePressed(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {}
+}
+----
+
+== Le patron de conception Decorator
+.Objectif
+Decorator étend dynamiquement les fonctionnalités d’un objet.
+
+* Ce pattern apporte une aide pour respecter le principe SRP
+* C’est une alternative à l’héritage pertinente en particulier quand les possibilité d’extension sont nombreuses et indépendantes
+
+== Structure du Decorator
+.Structure du Decorator.
+[#fig:decorateurdp]
+image::decorateur.png[]
+
+== Exemple: `BufferedInputStream` vu comme un Decorator
+.`+BufferedInputStream+`.
+[#fig:bufferedis]
+image::decorateur_input.png[]
+
+== Exemple: Flux de filtrage et Decorator
+* Un flux de filtrage est construit à partir d’un autre flux selon le
+modèle de conception Decorator
+* Le flux résultant propose des fonctionnalités plus riches que le flux
+initial
++
+[source,java]
+----
+FileReader words = new FileReader("words.txt");
+BufferedReader in = new BufferedReader(words);
+----
+
+== Le patron de conception Facade
+.Objectif
+Facade fournit une interface simplifiée pour un ensemble complexe de classes (bibliothèque par exemple).
+
+* Simplifie l’usage et la compréhension d’une bibliothèque (adaptation de l’interface au contexte)
+* Réduit le couplage entre les clients et les classes de la bibliothèque
+
+== Structure du Facade
+.Structure du Facade.
+[#fig:facadedp]
+image::facadedp.png[]
+
+== Le patron de conception Bridge
+.Objectif
+Bridge découple une abstraction de son implémentation afin que les deux éléments puissent être modifiés indépendamment l’un de l’autre.
+
+== Structure du Bridge
+.Structure du Bridge.
+[#fig:bridgedp]
+image::pont.png[]
+
+== Exemple: Interfaces et implémentations dans la bibliothèque de collections Java
+.Bridge dans la bibliothèque de collections en Java.
+[#fig:bridgecollec]
+image::pont_set.png[]

@@ -1,0 +1,193 @@
+= Patron de conception DAO 
+
+== Intérêt d’un pattern pour la persistance
+* Il faut définir la correspondance entre attribut des objets et données dans la base
+* Le code de persistance est du code technique dont l’application ne devrait pas dépendre
+* Le pattern _DAO_ (_Data Access Object_) fait le lien entre la couche métier et la couche persistante
+
+== Le patron de conception DAO
+* DAO permet de
+** regrouper les règles de correspondance entre les objets et le SGBD
+** isoler l’application par rapport à un SGBD spécifique
+* Il consiste à ajouter des objets ayant la responsabilités de l’accès au SGBD (opérations `+CRUD+`)
+* En général, pour chaque objet métier persistant, on crée un objet DAO correspondant
+
+== Structure du DAO
+.Structure du pattern DAO.
+[#fig:daodp]
+image::daodp.png[]
+
+== Usage du DAO
+. L’application récupère l’objet DAO approprié
+. L’application exécute une méthode de cet objet
+. L’objet DAO interagit avec le SGBD
+. L’objet DAO construit le (ou les) objets métiers
+. L’objet DAO retourne l’objet métier à l’application
+
+== DAO et Factory
+.Patterns DAO et Factory.
+[#fig:daofact]
+image::daofact.png[]
+
+== Exemple de DAO: La classe métier `+Personne+`
+[source,java]
+----
+public class Personne {
+    private String nom;
+    private int age;
+    
+    public Personne(String nom, int age) { /* ... */ }
+    @Override public String toString() { /* ... */ }
+    // ...
+}
+----
+
+== Exemple de DAO: La classe abstraite `+DAO+`
+[source,java]
+----
+public abstract class DAO<T> {
+    protected Connection connect = /* ... */;
+
+    public abstract T create(T obj);
+    public abstract T find(String id);
+    public abstract T update(T obj);
+    public abstract void delete(T obj);
+}
+----
+
+== Exemple de DAO: La classe `+PersonneDAO+`
+[source,java]
+----
+public class PersonneDAO extends DAO<Personne> {
+    @Override public Personne create(Personne obj) { /* ... */ }
+    @Override public Personne find(String id) { /* ... */ }
+    @Override public Personne update(Personne obj) { /* ... */ }
+    @Override public void delete(Personne obj) { /* ... */ }
+}
+----
+
+== Exemple de DAO: La méthode `+PersonneDAO.create+`
+[source,java]
+----
+@Override public Personne create(Personne obj) {
+    try {
+        PreparedStatement prepare = connect.prepareStatement(
+            "INSERT INTO personnes (nom, age) VALUES(?, ?)");
+        prepare.setString(1, obj.getNom);
+        prepare.setLong(2, obj.getAge());
+        int result = prepare.executeUpdate();
+        assert result == 1;	
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return obj;
+}
+----
+
+== Exemple de DAO: La classe abstraite `+DAO+`
+[source,java]
+----
+@Override public Personne find(String id) {
+    Personne p = new Personne();
+    try {
+        PreparedStatement prepare = connect.prepareStatement(
+            "SELECT * FROM personnes WHERE nom = ?");
+        prepare.setString(1, id);
+        ResultSet result = prepare.executeQuery();
+        if (result.first()) {
+            p = new Personne(
+                result.getString("nom"),
+                result.getLong("age"));
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return p;
+}
+----
+
+== Exemple de DAO: Utilisation du `+DAO+`
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        DAO<Personne> personneDao = new PersonneDAO();
+        System.out.println(personneDao.find("Dupond"));
+    }
+}
+----
+
+== Exemple de DAO: Une fabrique de `+DAO+`
+[source,java]
+----
+public class DAOFactory {
+    public static DAO<Personne> getPersonneDAO(){
+        return new PersonneDAO();
+    }
+}
+----
+
+== Exemple de DAO: Utilisation du `+DAO+` avec la fabrique
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        DAO<Personne> personneDao = DAOFactory.getPersonneDAO();
+        System.out.println(personneDao.find("Dupond"));
+    }
+}
+----
+
+== Exemple de DAO: Un `+DAO+` XML pour `+Personne+`
+[source,java]
+----
+public class PersonneXMLDAO extends DAO<Personne> {
+    @Override public Personne create(Personne obj) { /* ... */ }
+    @Override public Personne find(String id) { /* ... */ }
+    @Override public Personne update(Personne obj) { /* ... */ }
+    @Override public void delete(Personne obj) { /* ... */ }
+}
+----
+
+== Exemple de DAO: Une fabrique abstraite pour les `+DAO+`
+[source,java]
+----
+public abstract class AbstractDAOFactory {
+    public enum DaoType { JDBC, XML; }
+
+    public abstract DAO getPersonneDAO();
+
+    public static AbstractDAOFactory getFactory(DaoType type){
+        if(type == DaoType.JDBC) return new DAOFactory();
+        if(type == DaoType.XML)) return new XMLDAOFactory();
+        return null;
+    }
+}
+----
+
+== Exemple de DAO: Les fabriques deviennent des sous-classes de `+AbstractDAOFactory+`
+[source,java]
+----
+public class DAOFactory extends AbstractDAOFactory {
+    // ...
+}
+
+public class XMLDAOFactory extends AbstractDAOFactory {
+    public static DAO<Personne> getPersonneDAO(){
+        return new PersonneXMLDAO();
+    }
+}
+----
+
+== Exemple de DAO: Usage avec la fabrique abstraite
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        DAO<Personne> personneDao = AbstractDAOFactory.getFactory(DaoType.JDBC).getPersonneDAO();
+        System.out.println(personneDao.find("Dupond"));
+        personneDao = AbstractDAOFactory.getFactory(DaoType.XML).getPersonneDAO();
+        System.out.println(personneDao.find("Dupond"));
+    }
+}
+----

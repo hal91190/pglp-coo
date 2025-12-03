@@ -1,0 +1,24 @@
+= Conception Orientée Objet
+include::meta.adoc[]
+:doctype: book
+:toc: left
+:toc-title: Sommaire
+:sectanchors:
+:sectlinks:
+:sectnums:
+:masterdoc: // les sections sont intégrées dans un document maître
+include::attributes.adoc[]
+
+:leveloffset: +1
+
+include::intro/intro.adoc[]
+
+include::principles/principles.adoc[]
+
+include::patterns/patterns.adoc[]
+
+include::persistence/persistence.adoc[]
+
+include::conc/conc.adoc[]
+
+:leveloffset: -1

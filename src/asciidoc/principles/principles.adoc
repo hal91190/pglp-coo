@@ -1,0 +1,19 @@
+= Principes de conception logicielle
+ifndef::masterdoc[]
+include::../meta.adoc[]
+include::../attributes.adoc[]
+endif::masterdoc[]
+
+:leveloffset: +1
+
+include::general.adoc[]
+
+include::solid.adoc[]
+
+include::others.adoc[]
+
+include::grasp.adoc[]
+
+include::exercises.adoc[]
+
+:leveloffset: -1

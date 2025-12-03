@@ -1,0 +1,118 @@
+= Principes liés aux modules
+
+== Intérêt des modules
+* Une classe possède un niveau de granularité trop fin pour une application de taille importante
+* Il est nécessaire de disposer d’un outil de plus haut niveau pour organiser ce type d’application
+* Les _modules_ (ou _package_) représentent cet outil
+** ils permettent d’aborder la conception à un plus haut niveau d’abstraction
+** les classes sont partitionnées selon certains critères et placée dans des modules
+** les relations entre modules expriment l’organisation de haut niveau de l’application
+* des questions de conceptions se posent donc vis à vis des modules
+** quels sont les meilleurs critères de partitionnement ?
+** quels liens existent entre les modules ?
+** quels principes gouvernent leurs conceptions ?
+
+=== Principes liés à la cohésion des modules
+* Ensemble de principes publiés dans la revue _The C++ Report_ par Robert C. Martin
+* Repris dans l'article http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgOGM2ZGFhNmYtNmE4ZS00OGY5LWFkZTYtMjE0ZGNjODQ0MjEx&hl=en[Granularity],
+Robert C. Martin
+
+[cols="1,3,5"]
+|===
+|REP |Release Reuse Equivalency Principle |The granule of reuse is the granule of release.
+|CCP |Common Closure Principle |Classes that change together are packaged together.
+|CRP |Common Reuse Principle |Classes that are used together are packaged together.
+|===
+
+== The Release/Reuse Equivalency Principle (REP)
+.The Release/Reuse Equivalency Principle (REP)
+[quote]
+The granule of reuse is the granule of release.
+Only components that are released through a tracking system can be effectively reused.
+This granule is the package.
+
+* Un élément réutilisable peut être réutilisé uniquement s’il est géré par un système de distribution
+* En particulier, il doit être associé à un numéro de version (de distribution)
+* Un module est l’unité de distribution
+** un module est aussi l’unité de réutilisation
+
+== The Common Reuse Principle (CRP)
+.The Common Reuse Principle (CRP)
+[quote]
+The classes in a package are reused together.
+If you reuse one of the classes in a package, you reuse them all.
+
+* Une dépendance avec un module est une dépendance avec tout ce qu’il contient
+* Si une classe change, le module change et les clients doivent s’adapter
+** si une classe sans rapport mais se trouvant dans le module change, les clients sont impactés
+** les classes non utilisées ensemble ne doivent pas se trouver dans le même module
+
+== The Common Closure Principle (CCP)
+.The Common Closure Principle (CCP)
+[quote]
+The classes in a package should be closed together against the same kinds of changes.
+A change that affects a package affects all the classes in that package.
+
+* Une changement dans une classe implique une redistribution du module qui la contient
+* On veut minimiser le nombre de modules qui changent entre deux versions de l’application
+** regrouper les classes qui changent ensemble permet d’atteindre ce but
+
+== Combiner les trois principes
+* Il est difficile de satisfaire les trois principes simultanément
+* REP et CRP facilitent la réutilisation alors que CCP simplifie la maintenance
+* CCP tend à produire de gros module alors que CRP en produit de petits
+* On peut par exemple d’abord favoriser CCP pour la maintenance puis introduire REP et CRP quand le projet se stabilise
+
+=== Principes liés au couplage entre modules
+* Ensemble de principes publiés dans la revue _The C++ Report_ par Robert C. Martin
+* Repris dans les articles http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgOGM2ZGFhNmYtNmE4ZS00OGY5LWFkZTYtMjE0ZGNjODQ0MjEx&hl=en[Granularity] et http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgZjI3OTU4ZTAtYmM4Mi00MWMyLTgxN2YtMzk5YTY1NTViNTBh&hl=en[Stability],
+Robert C. Martin
+
+[cols="1,3,5"]
+|===
+|ADP |Acyclic Dependencies Principle |The dependency graph of packages must have no cycles.
+|SDP |Stable Dependencies Principle |Depend in the direction of stability.
+|SAP |Stable Abstractions Principle |Abstractness increases with stability.
+|===
+
+== The Acyclic Dependencies Principle (ADP)
+.The Acyclic Dependencies Principle (ADP)
+[quote]
+The dependency structure between packages must be a directed acyclic graph (DAG).
+That is, there must be no cycles in the dependency structure.
+
+* Tous les modules se trouvant dans un cycle sont mutuellement dépendants
+* Un cycle provoque une augmentation très importante du nombre de dépendances d’un projet
+* Si un cycle a été ajouté dans un projet l’application des principes ISP et DIP permet de le supprimer
+** les interfaces sont isolées
+** les dépendances sont inversées
+
+== The Stable Dependencies Principle (SDP)
+.The Stable Dependencies Principle (SDP)
+[quote]
+The dependencies between packages in a design should be in the direction of the stability of the packages.
+A package should only depend upon packages that are more stable than it is.
+
+* Un module dont dépendent de nombreux modules est difficile à changer
+** il est considéré comme très stable
+* À l’inverse un module dont personne ne dépend est considéré comme instable, i.e. facile à changer
+* Une application (et certains modules) doivent permettre les changements (par conception)
+** doivent être instables
+** aucuns modules stables ne doit dépendre d’eux
+* Chaque module devraient uniquement dépendre de modules plus stables
+
+== The Stable Abstractions Principle (SAP)
+.The Stable Abstractions Principle (SAP)
+[quote]
+Packages that are maximally stable should be maximally abstract.
+Instable packages should be concrete.
+The abstraction of a package should be in proportion to its stability.
+
+* Les modules dont dépendent tous les autres sont difficiles à changer
+* OCP impose qu’ils soient par contre extensible
+** ces modules doivent donc être très abstraits
+* Une application est donc composée de
+** modules concrets instables (donc faciles à changer)
+** modules abstraits stables (donc faciles à étendre)
+* La stabilité d’un module doit être en accord avec sa stabilité
+* SAP est donc directement lié à DIP

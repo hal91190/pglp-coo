@@ -1,0 +1,95 @@
+= Sérialisation
+
+== Qu’est-ce que la sérialisation ?
+.Sérialisation
+La _sérialisation_ permet la transformation d’un objet en un flux d’octets.
+
+* Permet le stockage des objets sur disque, leur transmission par le réseau, …
+* L’opération inverse se nomme _désérialisation_
+* _Marshalling_/_unmarshalling_ sont des concepts équivalents
+
+== Vue d’ensemble des entrées/sorties en Java
+* Le package `+java.io+` (JDK 1.0) fournit les opérations de base pour les I/O
+* Les packages `+java.nio+` (JDK 1.4) proposent des fonctionnalités plus avancées
+* Le package `+java.nio.file+` (JDK 1.7) enrichit l’interface avec le système de fichiers
+
+== `+java.io+`
+* I/O par flux
+** `+InputStream+`/`+OutputStream+` pour les flux d’octets
+** `+Reader+`/`+Writer+` pour les flux de caractères
+** `+FilterXXX+` pour les flux de filtrage
+** `+Console+` et `+PrintStream+` pour l’entrée et la sortie standard
+** `+ObjectInputStream+`/`+OutputStream+` pour la *sérialisation*
+* Accès aléatoires (`+RandomAccessFile+`)
+* Accès au système de fichiers (`+File+`) (remplacé et étendu par `+java.nio.file+`)
+
+== `+java.nio.file+`
+* `+Path+` représente un chemin dans le système de fichiers
+* `+FileSystems+`, `+Paths+` et `+Files+` pour manipuler le système de fichiers
+* Accès au contenu
++
+.Accès au contenu d’un fichier.
+[#fig:io-fileiomethods]
+image::io-fileiomethods.png[]
+* `+FileVisitor+` pour parcourir une hiérarchie de répertoires
+
+== Flux d’objets pour la sérialisation
+* La sérialisation est assurée par les flux d’objets
+** `+ObjectInputStream+` et `+ObjectOutputStream+`
+* `+ObjectOutputStream+` implémente l’interface `+ObjectOutput+` (sous interface de `+DataOutput+`)
+* `+ObjectInputStream+` implémente l’interface `+ObjectInput+` (sous interface de `+DataInput+`)
+* Les méthodes `+readObject+` et `+writeObject+` permettent de lire et d’écrire des objets
+* Lors de la lecture, un _cast_ est en général nécessaire
+** `+ClassNotFoundException+` en cas d’échec
+
+== Écrire des objets
+[source,java]
+----
+try (ObjectOutputStream out = new ObjectOutputStream(
+                                    new BufferedOutputStream(
+                                        new FileOutputStream(dataFile)))) {
+    out.writeObject(Calendar.getInstance());
+    for (int i = 0; i < prices.length; i++) {
+        out.writeObject(prices[i]);
+        out.writeInt(units[i]);
+        out.writeUTF(descs[i]);
+    }
+} 
+----
+
+== Lire des objets
+[source,java]
+----
+try (ObjectInputStream in = new ObjectInputStream(
+                                new BufferedInputStream(
+                                    new FileInputStream(dataFile)))) {
+    Calendar date = (Calendar)in.readObject();
+    try {
+        while (true) {
+            BigDecimal price = (BigDecimal) in.readObject();
+            int unit = in.readInt();
+            String desc = in.readUTF();
+        }
+    } catch (EOFException e) {}
+}
+----
+
+== Rendre une classe sérialisable
+* Un objet est sérialisable uniquement si sa classe implémente l’interface `+Serializable+`
+* L’interface `+Serializable+` ne comporte aucune méthode et ne sert qu’à marquer les classes sérialisables
+
+== Contrôler la sérialisation
+* La version d’un classe pour la sérialisation est gérée par l’attribut `+static final long serialVersionUID+`
+** en cas de différence à la lecture, une exception est levée (`+InvalidClassException+`)
+* Le comportement par défaut est fourni par les méthodes `+defaultWriteObject+` de `+ObjectOutputStream+` et `+defaultReadObject+` de `+ObjectInputStream+` et stocke
+** la classe de l’objet,
+** la signature de la classe,
+** la valeur des attributs d’instances y compris les références (mais pas les attributs `+transcient+`).
+* Il est possible d’adapter le comportement par défaut en redéfinissant `+writeObject+` et `+readObject+`
+* L’interface `+Externalizable+` permet d’avoir un contrôle complet du processus de sérialisation
+
+== Autres bibliothèques de sérialisation pour Java
+* http://flexjson.sourceforge.net/[FlexJSON] (JSON)
+* Google https://github.com/google/gson[GSON] (JSON)
+* https://github.com/EsotericSoftware/kryo[Kryo] (format spécifique)
+* http://sojo.sourceforge.net/[SOJO] (JSON, XML, CSV)

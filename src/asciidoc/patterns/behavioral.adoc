@@ -1,0 +1,173 @@
+= Patrons de comportement
+
+== Le patron de conception Command
+.Objectif
+Command utilise un objet pour encapsuler les informations pour réaliser une action.
+Le _client_ transmet la _commande_ (_command_) à l’_appelant_ (_invoker_) qui se charge de l’exécuter en interagissant avec le récepteur (_receiver_).
+
+* Usages communs: action d’une GUI (classe `+Action+` en Java), enregistrement de macros, _undo_ sur plusieurs niveaux
+
+== Structure du Command
+.Structure du Command.
+[#fig:commanddp]
+image::commanddp.png[]
+
+== Exemple 1/3: Command en Java 8
+[source,java]
+----
+@FunctionalInterface
+public interface Command { // Command
+    public void apply();
+}
+----
+
+== Exemple 2/3: Command en Java 8
+[source,java]
+----
+public class CommandFactory {
+    private final Map<String, Command>	commands;
+
+    private CommandFactory() {
+        this.commands = new HashMap<>();
+    }
+
+    public void addCommand(String name, Command command) {
+        this.commands.put(name, command);
+    }
+
+    public void executeCommand(String name) {
+        if (this.commands.containsKey(name)) {
+            this.commands.get(name).apply();
+        }
+    }
+
+    public static CommandFactory init() {
+        CommandFactory cf = new CommandFactory();
+        cf.addCommand("Light on", () -> System.out.println("Light turned on"));
+        cf.addCommand("Light off", () -> System.out.println("Light turned off"));
+        return cf;
+    }
+}
+----
+
+== Exemple 3/3: Command en Java 8
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        CommandFactory cf = CommandFactory.init();
+        cf.executeCommand("Light on");
+        cf.executeCommand("Light off");
+    }
+}
+----
+
+== Le patron de conception Iterator
+.Objectif
+Iterator fournit un moyen d’accès séquentiel aux éléments d’un agrégat d’objets sans mettre à découvert la représentation interne de ce dernier.
+
+== Structure de Iterator
+.Structure du Iterator.
+[#fig:iteratordp]
+image::iterateur.png[]
+
+== Exemple de Iterator 1/2: Un itérateur de la bibliothèque Java
+.Iterator en Java.
+[#fig:iteratorjava]
+image::iterateur_coll.png[]
+
+== Exemple de Iterator 2/2: Un itérateur de la bibliothèque Java
+[source,java]
+----
+public interface Iterator<T> {
+    boolean hasNext();
+    T next();
+    void remove();    // Optional
+}
+
+//...
+
+for (Iterator<String> i = uneCollectionDeChaines.iterator(); i.hasNext(); ) {
+    String element = i.next(); // Récupère l'élément et passe au suivant
+    // ...
+}
+----
+
+== Le patron de conception Observer
+.Objectif
+Observer fait en sorte que quand un objet change d’état, tout ceux qui en dépendent en soient notifiés et automatiquement mis à jour.
+
+.Structure du Observer.
+[#fig:observerdp]
+image::observateur.png[]
+
+== Observer en Java 1/2: La classe `+Observable+`
+* Un modèle est une classe qui étend `+java.util.Observable+` (fournit l’infrastructure d’enregistrement/notification)
+* Les accesseurs et mutateurs appropriés doivent ensuite être définis
+* Chaque mutateur doit appeler les méthodes `+void setChanged()+` et `+void notifyObservers()+` (ou `+void notifyObservers(Object arg)+`)
+* Le modèle peut éventuellement être découpé en plusieurs classes dérivants de `+Observable+`
+
+== Observer en Java 2/2: L’interface `+Observer+`
+* Un vue doit implémenter l’interface `+java.util.Observer+`
+* Cette interface déclare la méthode `+void update(Observable o, Object arg)+`
+* La vue doit aussi être enregistrée auprès du modèle en appelant la méthode `+void addObserver(Observer o)+` du modèle afin d’être notifiée des changements par la suite
+* Une vue peut être enregistrée auprès de plusieurs modèles
+
+== Le patron de conception Template method
+.Objectif
+Template method définit le squelette d’un algorithme dans une méthode qui délègue certaines étapes aux sous-classes.
+
+== Structure de Template method
+.Structure de Template method.
+[#fig:templatemethoddp]
+image::templatemethoddp.png[]
+
+== Exemple de Template method: Une classe _Game_ abstraite
+[source,java]
+----
+abstract class Game {
+    protected int playersCount;
+    
+    abstract void initializeGame();
+    abstract void makePlay(int player);
+    abstract boolean endOfGame();
+    abstract void printWinner();
+    
+    public final void playOneGame(int playersCount) { // Template method
+        this.playersCount = playersCount;
+        initializeGame();
+        int j = 0;
+        while (!endOfGame()) {
+            makePlay(j);
+            j = (j + 1) % playersCount;
+        }
+        printWinner();
+    }
+}
+----
+
+== Exemple: Le jeu de Monopoly
+[source,java]
+----
+class Monopoly extends Game {
+    void initializeGame() {
+        // Initialize players
+        // Initialize money
+    }
+    
+    void makePlay(int player) {
+        // Process one turn of player
+    }
+    
+    boolean endOfGame() {
+        // Return true if game is over 
+        // according to Monopoly rules
+    }
+    
+    void printWinner() {
+        // Display who won
+    }
+    
+    /* Specific declarations for the Monopoly game. */
+}
+----

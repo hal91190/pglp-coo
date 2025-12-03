@@ -1,0 +1,101 @@
+= Patterns GRASP
+
+== Introduction
+* GRASP = General Responsibility Assignment Software Patterns
+* Issus du travail de http://www.craiglarman.com[Craig Larman]
+* Ensemble de principes traitant de l’affectation de _responsabiblités_ aux classes
+* Tentative pour formaliser les intuitions utilisées par les concepteurs expérimentés
+* Neuf patterns
+** Expert en information
+** Créateur
+** Faible couplage
+** Forte cohésion
+** Contrôleur
+** Polymorphisme
+** Fabrication pure
+** Indirection
+** Protection
+
+== Qu’est ce qu’une responsabilité ?
+* Une responsabilité correspond à une tâche qu’un objet ou un groupe d’objets doit réaliser
+* Deux types: _Faire_ et _Savoir_
+* GRASP est un guide pour l’affectation de responsabilités aux objets
+
+== Expert en information
+Problème: Étant donné un objet, quelles responsabilités peut-on lui attribuer ?
+
+Solution: Lui sont assignées les responsabilités pour lesquelles il dispose des informations nécessaires à leur réalisation (Expert en information).
+
+== Créateur
+Problème: Qui est responsable de créer une nouvelle instance d’un classe?
+
+Solution: Une classe B est responsable de créer une instance de A si
+
+* B contient ou est composée de A, ou
+* B enregistre A, ou
+* B utilise A, ou
+* B possède les données pour initialiser A.
+
+* Limite le couplage
+* Peut être insuffisant en cas de processus de création complexe (cf. Fabrique Abstraite)
+
+== Faible couplage
+Problème: Comment garantir un faible nombre de dépendances, limiter l’impact des changements et améliorer la réutilisation ?
+
+Solution: Affecter les responsabilités de façon à maintenir un faible niveau de couplage.
+
+* Peut être appliqué pour décider entre plusieurs alternatives
+* Directement lié aux principes SOLID
+
+== Forte cohésion
+Problème: Comment assurer que les objets sont compréhensibles et maintenables ?
+
+Solution: Assigner les responsabilités de façon à maintenir une forte cohésion.
+
+* Peut être appliqué pour décider entre plusieurs alternatives
+* Lié à Faible couplage
+
+== Contrôleur
+Problème: Comment gérer les interactions entre les messages systèmes (interface utilisateur, …) et la couche métier?
+
+Solution: Assigner cette responsabilité à une classe parmi
+[horizontal]
+le contrôleur façade:: représente le point d’entrée de l’ensemble du système
+le contrôleur de session:: définit un point d’entrée par scénario/cas d’utilisation
+
+* Le contrôleur _délègue_ les traitements à la couche métier ou service
+* Lié aux patterns d’architecture _MVC_ (_Model-View-Controller_)
+* Attention aux nombres de responsabilités affectées au contrôleur
+** trop de responsabilités latexmath:[\Rightarrow] ajouter des contrôleurs
+** trop de traitements latexmath:[\Rightarrow] déléguer
+
+== Polymorphisme
+Problème: Comment gérer des alternatives basées sur le type?
+
+Solution: Assigner les responsabilités des comportements spécifiques aux classes dont le comportement est spécifique (grâce au polymorphisme)
+
+* Passe en général par l’usage d’une classe abstraite ou une interface
+* Les tests explicites sur le type dynamique d’un objet sont à proscrire
+* Lié à OCP
+
+== Fabrication pure
+Problème: Quel objet doit recevoir une responsabilité en assurant Forte cohésion, Couplage faible quand les autres principes sont inappropriés?
+
+Solution: Créer une classe artificielle (ne représentant pas un concept du domaine) et lui affecter cette responsabilité.
+
+* Toutes les classes d’une application ne sont pas des concepts métiers
+* Concerne en particulier les fonctionnalités techniques (persistance, logging, …)
+
+== Indirection
+Problème: Comment assigner une responsabilité en évitant le couplage direct entre des objets ?
+
+Solution: Assigner la responsabilité à un objet intermédiaire qui assure la médiation.
+
+* L’intermédiaire est l’Indirection
+
+== Protection
+Problème: Comment concevoir les éléments d’un système de telle façon que les variations de ces éléments n’aient pas d’effets indésirables sur les autres ?
+
+Solution: Anticiper les points de variations (ou d’instabilité) et créer un interface stable autour d’eux.
+
+* Les principes SOLID détaillent ce principe

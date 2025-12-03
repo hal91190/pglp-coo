@@ -1,0 +1,165 @@
+= Principes généraux
+
+== Principes, patterns et idiomes
+* Un _principe_ donne des directives générales
+** souvent indépendant des paradigmes et des langages
+** par exemple _KISS_, _YAGNI_, _DRY_, RtFM, _Law of Demeter_/_Tell, don't ask_, …
+* Un _pattern_ propose une solution reconnue à un problème récurrent
+** en général indépendant des langages
+** par exemple le design pattern _Composite_
+* Un _idiome_ est une construction spécifique d'un langage pour implémenter une situation courante
+** `uneListe.forEach(System.out::println);` (afficher une liste en Java 8)
+
+== KISS (Keep It Simple, Stupid)
+* https://en.wikipedia.org/wiki/KISS_principle["_Simplicity should be a key goal in design and unnecessary complexity should be avoided_"], Kelly Johnson, ingénieur chez Lockheed
+* Le code le plus simple est aussi le plus simple à maintenir
+
+== YAGNI (You Aren’t Gonna Need It)
+* http://wiki.c2.com/?DoTheSimplestThingThatCouldPossiblyWork["_Do the Simplest Thing That Could Possibly Work_"]
+* Ne pas ajouter une fonctionnalité avant que cela soit nécessaire
+* Principe issu d'eXtreme Programming
+* Nécessite de s'appuyer sur du _refactoring_ pour être efficace
+
+== DRY (Don’t Repeat Yourself)
+* https://en.wikipedia.org/wiki/Don%27t_repeat_yourself["_Every piece of knowledge must have a single, unambiguous, authoritative representation within a system_"], _The Pragmatic Programmer_, Andrew Hunt and David Thomas
+* Chaque fonctionnalité doit être réalisée à un seul endroit du code
+* Une modification d'un élément ne nécessite pas de changer un autre élément non relié logiquement
+
+== RtFM (Read the Fine Manual)
+* https://fr.wikipedia.org/wiki/RTFM_(expression)[La réponse se trouve dans la documentation]
+
+[CAUTION]
+.Attention à la pertinence des sources d'information
+====
+* *Toutes les sources d'information ne se valent pas !*
+* Une recherche Internet ne pointe pas toujours sur une réponse pertinente
+* Toujours préférer la documentation officielle ou des sites bien établis (https://stackoverflow.com/[Stack Overflow]) à d'obscures forums/blogs
+* *Ne pas faire de copier/coller sans avoir compris*
+====
+
+== Law of Demeter
+.Law of Demeter or principle of least knowledge
+[NOTE]
+====
+* Each unit should have only limited knowledge about other units: only units "closely" related to the current unit.
+* Each unit should only talk to its friends; don't talk to strangers.
+* Only talk to your immediate friends.
+====
+
+* Une méthode d'un objet devrait invoquer uniquement les méthodes de
+** l'objet lui-même,
+** ses paramètres,
+** tout objet qu'elle instancie,
+** ses composants directs.
+* Un objet connaît le minimum sur la structure de ses voisins
+* Cela limite les dépendances avec les autres objets
+
+== Exemple de la Loi de Demeter 1/5
+.Un client paye (*version incorrecte*)
+[source,java]
+----
+Wallet theWallet = theCustomer.getWallet();
+double totalMoney = theWallet.getTotalMoney();
+if (totalMoney > AMOUNT_TO_PAY_IN_EUROS) {
+    theWallet.subtractMoney(AMOUNT_TO_PAY_IN_EUROS);
+}
+----
+
+* Cet exemple est extrait de http://www.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/paper-boy/demeter.pdf[The Paperboy, The Wallet, and The Law Of Demeter], David Bock
+* Le créancier connaît la structure du client et manipule lui-même le portefeuille
+* Il dispose de plus d'informations que nécessaire
+* La validité du portefeuille n'est pas garantie
+
+== Exemple de la Loi de Demeter 2/5
+.La classe `Customer` (*version incorrecte*)
+[source,java]
+----
+public class Customer {
+  private String name;
+  private Wallet wallet;
+
+  public Customer(String name, double fortune) {
+    this.name = name;
+    wallet = new Wallet(fortune);
+  }
+
+  public Wallet getWallet() { //<1>
+    return wallet;
+  }
+}
+----
+<1> Quel est l'intérêt d'avoir un attribut privé si l'accesseur le rend public ?
+
+== Exemple de la Loi de Demeter 3/5
+.La classe `Wallet` (*version incorrecte*)
+[source,java]
+----
+public class Wallet {
+  private double totalMoney;
+
+  public Wallet(double fortune) {
+    totalMoney = fortune;
+  }
+
+  public double getTotalMoney() {
+    return totalMoney;
+  }
+
+  public void subtractMoney(double amountToPayInEuros) {
+    totalMoney -= amountToPayInEuros;
+  }
+}
+----
+
+== Exemple de la Loi de Demeter 4/5
+.Un client paye (version corrigée)
+[source,java]
+----
+double paidAmount = theCustomer.getPayment(AMOUNT_TO_PAY_IN_EUROS);
+----
+
+* Le créancier doit demander le paiement
+* La classe `Wallet` est isolée (diminue le couplage)
+* La méthode `getPayment` encapsule la logique du paiement (améliore la cohésion)
+* La classe `Customer` est plus complexe
+** mais la complexité a été transférée depuis le code de l'application
+
+== Exemple de la Loi de Demeter 5/5
+.La classe `Customer` (version corrigée)
+[source,java]
+----
+public class Customer {
+  private String name;
+  private Wallet wallet;
+
+  public Customer(String name, double fortune) {
+    this.name = name;
+    wallet = new Wallet(fortune);
+  }
+
+  public double getPayment(double amountToPayInEuros) {
+    double totalMoney = wallet.getTotalMoney();
+    double paidAmount = 0.0;
+    if (totalMoney > amountToPayInEuros) {
+      paidAmount = amountToPayInEuros;
+      wallet.subtractMoney(paidAmount);
+    }
+   return paidAmount;
+  }
+}
+----
+
+* La classe `Customer` ne publie plus la méthode `getWallet()`
+
+== Don't guess, measure!
+* Quand il s'agit de performances, ne supposez pas, mesurez !
+
+[NOTE]
+====
+* https://youtu.be/w56RUzBLaRE?si=QKlnWRHAIWRiJY-j[String Concatenation], José Paumard, JEP Café #7
+* https://youtu.be/ul4wHrbJ8Fk?si=C_MZrSwi-QbGwerv[Choosing between ArrayList and LinkedList], José Paumard, JEP Cafe #20
+* https://github.com/openjdk/jmh[Java Microbenchmark Harness] (JMH)
+** https://youtu.be/VaWgOCDBxYw?si=99h0Mzz5ZQJETGsF[Java Microbenchmark Harness: The Lesser of Two Evils], Aleksey Shipilev
+* https://github.com/openjdk/jol[Java Object Layout] (JOL)
+** https://betterprogramming.pub/sweating-the-small-stuff-in-java-dbd695166d13[Sweating the small stuff in Java], Donald Raab
+====

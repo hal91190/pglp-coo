@@ -1,0 +1,214 @@
+= JDBC: une API d’accès bas niveau
+
+== But des API d’accès bas niveau
+* Ces API fournissent un moyen pour interfacer un programme avec un SGBD
+* Elles sont conçues pour que le programme soit indépendant d’un SGBD spécifique
+** un _driver_ se charge de la traduction vers un SGBD spécifique
+* Les API les plus connus sont https://en.wikipedia.org/wiki/Open_Database_Connectivity[ODBC] et https://en.wikipedia.org/wiki/Java_Database_Connectivity[JDBC]
+** ciblent les SGBDR
+
+== JDBC
+* _Java database connectivity technology_ (_JDBC_) a été introduit dans le JDK 1.1
+* Est contenu dans les modules `+java.sql+` et `+javax.sql+`
+
+== Architecture
+.Architecture de JDBC.
+[#fig:jdbcarchi]
+image::jdbcarchi.png[]
+
+== Driver
+* Le _driver JDBC_ permet de communiquer avec un SGBD particulier
+* 4 types
++
+[horizontal]
+Type 1:: (_JDBC-ODBC bridge_) s’appuie sur un driver ODBC
+Type 2:: écrit en Java et appel l’API native du SGBD
+Type 3:: écrit en Java et utilise un _middleware_
+Type 4:: écrit en Java et utilise le protocole natif du SGBD
+* Sous la forme de fichier `+jar+` à inclure dans le `+CLASSPATH+`
+
+== Se connecter à une source de données
+* Une _source de données_ peut être un SGBD ou un autre système disposant d’un _driver JDBC_
+* La connexion à un source de données nécessite:
+** de charger le driver JDBC,
+** de construire la _chaîne de connexion_ pour cette source,
+** d’établir la connexion avec `+DriverManager+` ou `+DataSource+`.
+
+== Chargement du driver JDBC
+* [.alert]#L’archive `+jar+` du driver doit être dans le `+CLASSPATH+`#
+* À partir de la version 4.0 de JDBC, le chargement du driver est automatique
+** la classe `+DriverManager+` charge l’ensemble des drivers disponibles dans le `+CLASSPATH+`
+* Avec les versions précédentes
++
+[source,java]
+----
+Class.forName("org.apache.derby.jdbc.EmbeddedDriver"); // pour Derby ou
+Class.forName("org.postgresql.Driver"); // pour PostgreSQL ou
+Class.forName("com.mysql.jdbc.Driver"); // pour MySQL
+----
+* Un autre possibilité est d’utiliser la propriété `+jdbc.drivers+`
++
+----
+java -Djdbc.drivers=le.driver.jdbc applicationClass
+----
+
+== Chaîne de connexion
+* La chaîne de connexion (_database connection URL_) est une chaîne de caractères précisant les informations nécessaires pour se connecter au SGBD
+* Elle est spécifique à la chaque driver mais débute toujours par latexmath:[jdbc:]
+* Par exemple
+** pour Derby, `+jdbc:derby:[+`_`+subsubprotocol:+`_`+][+`_`+databaseName+`_`+][+`_`+;attribute=value+`_`+]*+`
++
+[source,java]
+----
+String dburl = "jdbc:derby:test;create=true";
+----
+** pour PostgreSQL, `+jdbc:postgresql://host[+`_`+:port+`_`+]/[+`_`+database+`_`+]+`
++
+[source,java]
+----
+String dburl = "jdbc:postgresql://localhost/test";
+----
+** pour MySQL, `+jdbc:mysql://[+`_`+host+`_`+][+`_`+,failoverhost...+`_`+][+`_`+:port+`_`+]/[+`_`+database+`_`+]+`
++
+[source,java]
+----
+String dburl = "jdbc:mysql://localhost/test";
+----
+
+== Établir la connexion
+* La méthode `+DriverManager.getConnection+` ouvre une connexion avec le SGBD
++
+[source,java]
+----
+Properties connectionProps = new Properties();
+connectionProps.put("user", userName);
+connectionProps.put("password", password);
+
+try (Connection conn = DriverManager.getConnection(
+        "jdbc:somejdbcvendor:other data needed by some jdbc vendor",
+        connectionProps) ) {
+    // ...
+}
+----
+* L’interface `+Connection+` permet l’interaction avec le SGBD
+* En cas d’erreur, une exception `+SQLException+` est lancée
+
+== Fermer la connexion
+* Il est important de fermer correctement la connexion (_try-with-ressource_
++
+[source,java]
+----
+try (Connection conn = DriverManager.getConnection(/* ... */) {
+    // ...
+}
+----
+* ou bloc _finally_)
++
+[source,java]
+----
+Connection connection = null;
+
+try {
+    connection = DriverManager.getConnection(/* ... */);
+    // ...
+} finally {
+    if (connection != null) {
+        try { conn.close(); } catch (Exception e) { /* ignoré */ }
+    }
+}
+----
+
+== Exécuter une requête: créer une instruction
+* L’interface `+Statement+` représente une instruction SQL
+* Un objet `+Statement+` est créé à partir d’un objet `+Connection+`
+* Il peut être exécuté et produit en général un objet `+ResultSet+`
+* Il en existe trois types:
++
+[horizontal]
+`+Statement+`:: pour une instruction SQL simple
+`+PreparedStatement+`:: pour une instruction SQL pré-compilée avec des paramètres
+`+CallableStatement+`:: pour une procédure stockée
+
+== Instruction pré-compilée
+* Une _instruction pré-compilée_ (_prepared statement_) est une instruction SQL préalablement compilée par le SGBD
++
+[source,java]
+----
+String updateString = "UPDATE " + dbName + "." + dbTable +
+    "SET attr1 = ? WHERE attr2 = ?";
+update = con.prepareStatement(updateString);
+----
+* Une telle instruction peut être paramétrée (par position marquée par `+?+`)
++
+[source,java]
+----
+update.setInt(1, 12);
+update.setString(2, "toto");
+----
+== Exécuter une requête
+* Une instruction est exécutée avec
++
+[horizontal]
+`+execute+`:: retourne `+true+` si la requête retourne un (ou plusieurs) `+ResultSet+`
++
+[source,java]
+----
+if(stmt.execute("...") == false) {
+    int num = stmt.getUpdateCount(); // Get the update count
+    // ...
+} else {
+    ResultSet         rs = stmt.getResultSet();
+    ResultSetMetaData md = rs.getMetaData();
+    // ...
+}
+----
+`+executeQuery+`:: retourne un `+ResultSet+`
++
+[source,java]
+----
+ResultSet rs = stmt.executeQuery(query);
+----
+`+executeUpdate+`:: retourne le nombre de tuples affectés (pour DDL et DML)
++
+[source,java]
+----
+int numberOfAffectedRows = update.executeUpdate();
+----
+
+== Traiter les résultats
+* L’interface `+ResultSet+` permet de parcourir les résultats d’une exécution
+* Il maintient un curseur sur le tuple courant
+* La méthode `+next+` fait avancer le curseur et renvoie `+false+` s’il n’y a plus de tuples
+* L’interface `+ResultSetMetaData+` décrit les colonnes d’un `+ResultSet+`
+* L’interface `+RowSet+` propose une extension de `+ResultSet+`
+
+== Types de `+ResultSet+`
+* Par défaut, un `+ResultSet+` est non modifiable et ne peut être parcouru qu’une fois
+* Lors de la création de l’instruction, il est possible de modifier ce comportement par défaut
+* Type
++
+[horizontal]
+`+TYPE_FORWARD_ONLY+`:: un seul parcours (par défaut)
+`+TYPE_SCROLL_INSENSITIVE+`:: tout type de parcours, ne reflète pas les modifications
+`+TYPE_SCROLL_SENSITIVE+`:: tout type de parcours, reflète les modifications
+* Mode de mise à jour
++
+[horizontal]
+`+CONCUR_READ_ONLY+`:: pas de mise à jour (par défaut)
+`+CONCUR_UPDATABLE+`:: mise à jour possible
+* Mode de conservation
++
+[horizontal]
+`+HOLD_CURSORS_OVER_COMMIT+`:: maintenu ouvert après un _commit_
+`+CLOSE_CURSORS_AT_COMMIT+`:: fermé lors du _commit_
+
+== Mise à jour à partir d’un `+ResultSet+`
+* Les méthodes `+updateXXX+` permettent de modifier le tuple courant
+* La méthode `+moveToInsertRow+` se place sur un buffer pour l’ajout d’un tuple et `+insertRow+` réalise l’insertion
+
+== Extensions de JDBC
+* http://docs.spring.io/spring/docs/current/spring-framework-reference/html/jdbc.html[Spring Framework JDBC abstraction]
+(https://spring.io/guides/gs/relational-data-access/[Accessing Relational Data using JDBC with Spring])
+* https://commons.apache.org/proper/commons-dbutils/[Apache Commons DbUtils]
+* https://github.com/jdbi/jdbi[jDBI]
+* http://www.sql2o.org/[Sql2o]

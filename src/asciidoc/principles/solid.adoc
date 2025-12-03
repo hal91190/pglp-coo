@@ -1,0 +1,469 @@
+= Principes SOLID
+
+== Introduction
+
+=== Principes SOLID
+* Le http://tinyurl.com/84emx[premier jet] de ces principes a été publié sur le newsgroup `+comp.object+` par Robert C. Martin en 1995
+* Ces principes adressent la question de la gestion des dépendances dans la COO
+* La bonne gestion des dépendances est nécessaire à la production d’un logiciel de qualité
+
+=== Principes de conception des classes
+[cols="<,<,<",options="header",]
+|===
+|SRP |Single Responsibility Principle |A class should have one, and only
+one, reason to change.
+|OCP |Open Closed Principle |You should be able to extend a classes
+behavior, without modifying it.
+
+|LSP |Liskov Substitution Principle |Derived classes must be
+substitutable for their base classes.
+
+|ISP |Interface Segregation Principle |Make fine grained interfaces that
+are client specific.
+
+|DIP |Dependency Inversion Principle |Depend on abstractions, not on
+concretions.
+|===
+
+== Single Responsibility Principle (SRP)
+
+=== Single Responsibility Principle (SRP)
+Single Responsibility Principle (SRP) A class should have only one
+reason to change.
+
+* SRP est lié à la mesure de la _cohésion_
+* La cohésion mesure le rapport entre une fonctionnalité attendue et le
+service rendu par une classe (ou un module)
+* SRP relie cette notion au concept de changement
+* Les exemples sont issus de
+https://docs.google.com/open?id=0ByOwmqah_nuGNHEtcU5OekdDMkk[SRP: The
+Single Responsibility Principle], Robert C. Martin
+
+=== Exemple: La classe Rectangle viole SRP
+.Un exemple de violation de SRP.
+[#fig:srp-violation]
+image::srp-violation.png[]
+
+* La classe `+Rectangle+` possède deux responsabilités
+** le calcul de surface,
+** l’affichage graphique.
+* L’application de calcul géométrique dépend de l’affichage graphique
+* Un changement de l’application graphique peut nécessiter un changement
+dans le rectangle et donc une reconstruction de l’application
+géométrique
+
+=== Exemple: La classe Rectangle modfifée
+.Une application de SRP.
+[#fig:srp-corrected]
+image::srp-corrected.png[]
+
+* Cette conception minimise l’impact des changements
+
+=== Responsabilité
+* Dans SRP, une _responsabilité_ est définie comme une cause de changement
+* Un changement dans les besoins provoquera une modification des responsabilités des classes
+** si une classe possède plusieurs responsabilités, elle aura plusieurs raisons de changer
+* Si une classe possède plusieurs responsabilités, ces dernières sont couplées
+** un changement de l’une peut perturber le service de l’autre
+* Quand n’est-il pas nécessaire de découpler les responsabilités ?
+** si les changements n’ont aucun risque de se produire
+** s’ils se produisent toujours ensemble
+
+== Open Closed Principle (OCP)
+=== Open Closed Principle (OCP)
+Open Closed Principle (OCP) A module should be open for extension but
+closed for modification.
+
+* Les modules (ou les classes) doivent pouvoir être étendus mais sans
+devoir être modifiés
+** le comportement doit pouvoir être changé sans modification du code
+source
+* Les techniques permettant d’atteindre ce but sont basées sur
+l’_abstraction_ en particulier sur les concepts OO
+
+=== Intérêt et difficultés d’OCP
+
+* L’intégration de nouveaux besoins ne nécessite que l’ajout de code et
+ne modifie pas l’existant
+** l’existant ne peut pas être dégradé
+** les modifications ne se propagent pas aux modules dépendants
+* Il est difficile de respecter à la lettre ce principe
+** peut rendre la conception complexe
+** respecter OCP partiellement peut déjà apporter beaucoup à la
+conception
+* Les exemples sont issus de
+http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1&hl=en[The
+Open-Closed Principle], Robert C. Martin
+
+=== Exemple: Un exemple de violation d’OCP 1/4
+....
+public enum ShapeType {
+  CIRCLE, SQUARE;
+}
+
+public abstract class Shape {
+  public final ShapeType type;
+
+  public Shape(ShapeType type) {
+    this.type = type;
+  }
+}
+....
+
+* L’attribut type représente le type de forme
+* Suit une approche procédurale (non OO)
+
+=== Exemple: Un exemple de violation d’OCP 2/4
+....
+public class Circle extends Shape {
+  Point2D center;
+  double radius;
+
+  public Circle(Point2D center, double radius) {
+    super(ShapeType.CIRCLE);
+    this.center = center;
+    this.radius = radius;
+  }
+}
+....
+
+=== Exemple: Un exemple de violation d’OCP 3/4
+....
+public class Square extends Shape {
+  Point2D topLeft;
+  final double side;
+
+  public Square(Point2D topLeft, double side) {
+    super(ShapeType.SQUARE);
+    this.topLeft = topLeft;
+    this.side = side;
+  }
+}
+	
+....
+
+=== Exemple: Un exemple de violation d’OCP 4/4
+....
+public static double computeArea(Shape s) {
+  double result = 0;
+  
+  switch (s.type) {
+  case CIRCLE:
+    result = computeArea((Circle)s);
+    break;
+  case SQUARE:
+    result = computeArea((Square)s);
+    break;
+  default:
+    assert false : s.type;
+  }
+  return result;
+}
+	
+....
+
+* Ne respecte pas OCP
+** l’ajout d’une forme oblige à modifier computeArea
+* Ce motif se répétera dans toutes les fonctions qui devront
+différencier les formes
+
+=== Exemple: Un exemple respectant OCP 1/3
+....
+public abstract class Shape {
+    public abstract double computeArea();
+}
+
+public class Circle extends Shape {
+    Point2D center;
+    double radius;
+
+    public Circle(Point2D center, double radius) {
+        this.center = center;
+        this.radius = radius;
+    }
+
+    @Override
+    public double computeArea() {
+        return PI * pow(radius, 2.0);
+    }
+}
+....
+
+* Le type de forme s’appuie sur le polymorphisme
+
+=== Exemple: Un exemple respectant OCP 2/3
+....
+public class Square extends Shape {
+    Point2D topLeft;
+    final double side;
+    
+    public Square(Point2D topLeft, double side) {
+        this.topLeft = topLeft;
+        this.side = side;
+    }
+    
+    @Override
+    public double computeArea() {
+        return pow(side, 2.0);
+    }
+}
+....
+
+=== Exemple: Un exemple respectant OCP 3/3
+....
+shapes = new ArrayList<>();
+shapes.add(new Circle(new Point2D(1.0, 1.0), 1.0));
+shapes.add(new Square(new Point2D(3.0, 4.0), 2.0));
+
+double total = shapes.stream()
+    .mapToDouble(Shape::computeArea)
+    .sum();
+....
+
+* Le calcul utilise le polymorphisme
+* Aucune modification de l’existant n’est nécessaire pour ajouter une
+forme
+
+=== Implications d’OCP
+* Les attributs doivent être privés
+** quand un attribut change, toute les méthodes qui en dépendent doivent changer aussi
+** ces méthodes ne sont pas fermées par rapport à cet attribut
+*** normal pour les méthodes de la classe elle-même
+*** non souhaitable pour les autres méthodes (_encapsulation_)
+* Pas de variables globales
+** même argumentaire que pour les attributs mais par rapport aux modules
+* Attention à l’usage des informations de typage à l’exécution (`+instanceof+` en java, `+dynamic_cast+` en C++, …)
+** l’ajout d’un nouveau type peut provoquer un changement dans les méthodes
+
+== Liskov Substitution Principle (LSP)
+=== Liskov Substitution Principle (LSP)
+Liskov Substitution Principle (LSP) Derived classes must be
+substitutable for their base classes.
+
+* Est issu des travaux de Barbara Liskov
+** if for each object latexmath:[o_1] of type latexmath:[S] there is an
+object latexmath:[o_2] of type latexmath:[T] such that for all programs
+latexmath:[P] defined in terms of latexmath:[T], the behavior of
+latexmath:[P] is unchanged when latexmath:[o_1] is substituted for
+latexmath:[o_2] then latexmath:[S] is a subtype of latexmath:[T].
+* également lié à l’approche _Design By Contract_, Bertrand Meyer
+** derived methods should expect no more and provide no less.
+* Les exemples sont issus de
+http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgNzAzZjA5ZmItNjU3NS00MzQ5LTkwYjMtMDJhNDU5ZTM0MTlh&hl=en[The
+Liskov Substitution Principle], Robert C. Martin
+
+=== Conséquence d’une violation du LSP
+* Une méthode qui ne respecte pas LSP doit disposer d’informations sur
+les sous-classes
+** l’ajout d’un sous-classe impose de modifier la méthode
+** violation d’OCP
+
+=== Exemple: Un exemple de violation de LSP 1/3
+....
+public class Rectangle {
+    private int height;
+    private int width;
+    
+    public int getHeight() { return height; }
+    public void setHeight(int height) { this.height = height; }
+    public int getWidth() { return width; }
+    public void setWidth(int width) { this.width = width; }
+}
+	
+....
+
+=== Exemple: Un exemple de violation de LSP 2/3
+....
+public class Square extends Rectangle {
+    private void setSide(int side) {
+        super.setHeight(side);
+        super.setWidth(side);
+    }
+    
+    public void setHeight(int height) {
+        setSide(height);
+    }
+    
+    public void setWidth(int width) {
+        setSide(width);
+    }
+}
+....
+
+* Mathématiquement, un carré est un rectangle (relation _ISA_)
+** modélisé par un héritage entre Rectangle et Square
+* Intuitivement, on sent que ce choix est discutable
+** height et width ne sont pas utiles
+** idem pour les getters/setters correspondants
+** bricolage pour que le comportement soit adapté au carré
+
+=== Exemple: Un exemple de violation de LSP 3/3
+....
+Rectangle r = new Rectangle();
+r.setHeight(3);
+r.setWidth(4);
+assertThat(r.getHeight() * r.getWidth(), is(12)); // OK
+
+Rectangle r = new Square();
+r.setHeight(3);
+r.setWidth(4);
+assertThat(r.getHeight() * r.getWidth(), is(12)); // Échoue
+....
+
+* L’utilisateur suppose que la modification de la hauteur n’a pas
+d’impact sur la largeur (et réciproquement)
+* Le comportement n’est pas le même en présence d’un rectangle ou d’un
+carré
+** violation de LSP
+** le code client doit changer pour supporter la classe Square
+** violation d’OCP
+
+=== Conséquence de LSP
+* La validité d’un modèle n’est pas intrinsèque
+** dépend de son usage (des hypothèses de l’utilisateur du modèle)
+** lors de la conception, il faut imaginer ce que va supposer l’utilisateur
+* La relation ISA porte sur le comportement
+** un carré est bien un rectangle d’un point de vue mathématique
+** un carré ne possède absolument pas le comportement d’un rectangle (indépendance entre hauteur et largeur)
+* LSP et conception par contrat
+** l’utilisateur d’un objet d’une classe de base ne connaît que les pré et post-conditions de cette classe
+** toute sous-classe doit les respecter
+** la pré-condition ne peut pas être plus restrictive
+** la post-condition ne peut être que plus forte
+
+== Interface Segregation Principle (ISP)
+=== Interface Segregation Principle (ISP)
+Interface Segregation Principle (ISP) Client should not be forced to
+depend upon interfaces that they do not use.
+
+* ISP aborde la question de la taille des interfaces des classes
+* Une interface ayant de trop nombreuses méthodes manque de cohésion
+* Elle doit être découpée en fonction des besoins des clients
+* Un client interagit à travers une interface adaptée à son besoin
+* Les exemples sont issus de
+http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgOTViYjJhYzMtMzYxMC00MzFjLWJjMzYtOGJiMDc5N2JkYmJi&hl=en[The
+Interface Segregation Principle], Robert C. Martin
+
+=== Exemple: Un exemple de violation de ISP 1/3
+....
+public class Rectangle {
+    private int height;
+    private int width;
+    
+    public double computeArea() {
+        return height * width;
+    }
+    
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.GREEN);
+        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
+    }
+}
+....
+
+* fournit le calcul d’aire et l’affichage graphique (viole SRP)
+* dépend de JavaFX
+
+=== Exemple: Un exemple de violation de ISP 2/3
+....
+public class DrawingApp extends Application {
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        primaryStage.setTitle("Drawing Operations Test");
+        Group root = new Group();
+        Canvas canvas = new Canvas(300, 250);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        
+        Rectangle r = new Rectangle();
+        r.draw(gc);
+        
+        root.getChildren().add(canvas);
+        primaryStage.setScene(new Scene(root));
+        primaryStage.show();
+    }
+    
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
+....
+
+=== Exemple: Un exemple de violation de ISP 3/3
+....
+public class GeometricApp {
+    public static void main(String[] args) {
+        Rectangle r = new Rectangle();
+        System.out.println(r.computeArea());
+    }
+}
+....
+
+* Dépend inutilement de JavaFX
+* Un changement dans les besoins de l’application graphique peut
+nécessiter une recompilation de l’application géométrique
+
+=== Exemple: Un exemple respectant ISP 1/2
+....
+public interface DrawableRectangle {
+    void draw(GraphicsContext gc);
+}
+
+public interface GeometricRectangle {
+    double computeArea();
+}
+....
+
+* Vont permettre d’isoler les applications de la classe concrète
+* Met en œuvre le pattern Adaptateur
+
+=== Exemple: Un exemple respectant ISP 2/2
+....
+public class Rectangle implements GeometricRectangle, DrawableRectangle {
+//...
+....
+
+....
+DrawableRectangle dr = // logique de création de l'instance
+dr.draw(gc);
+....
+
+....
+GeometricRectangle gr = // logique de création de l'instance
+System.out.println(gr.computeArea());
+....
+
+* L’application graphique ne dépend plus de l’application graphique et
+de ses changements
+
+== Dependency Inversion Principle (DIP)
+=== Dependency Inversion Principle (DIP)
+Dependency Inversion Principle (DIP)
+
+* High level modules should not depend upon low level modules. Both
+should depend upon abstractions.
+* Abstractions should not depend upon details. Details should depend
+upon abstractions.
+
+* Les abstractions sont moins sujettes aux changements
+** elles ne doivent pas dépendre d’éléments moins stables
+* Plus de détails dans
+http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgMjdlMWIzNGUtZTQ0NC00ZjQ5LTkwYzQtZjRhMDRlNTQ3ZGMz&hl=en[The
+Dependency Inversion Principle], Robert C. Martin
+
+=== Exemple: Un exemple d’application de DIP
+....
+public static void copy(BufferedReader from, BufferedWriter to) throws IOException {
+    String line = null;
+    while ((line = from.readLine()) != null) {
+        to.write(line);
+    }
+}
+....
+
+* `+BufferedReader+` et `+BufferedWriter+` sont des abstractions pour la
+source et la destination
+* La logique de la copie est indépendante du type de source et de
+destination (fichier, mémoire, réseau, …)
+* La création d’instances viole souvent le DIP
+** utilisation du pattern AbstractFactory ou de l’_injection de
+dépendances_

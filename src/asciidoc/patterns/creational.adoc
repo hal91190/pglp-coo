@@ -1,0 +1,320 @@
+= Patrons de création
+
+== Le patron de conception Singleton
+.Objectif
+Singleton garantit qu’une seule instance d’une classe sera créée et fournit un accès uniforme à cet unique objet.
+
+.Structure du Singleton.
+[#fig:singletondp]
+image::singleton_class.png[]
+
+== Le Singleton en Java: Deux approches possibles
+.Avec une classe
+* un attribut de classe privé fait référence à l’unique instance de la classe
+* une méthode de classe publique permet de récupérer cette instance
+* le constructeur de la classe est privé afin de ne pas permettre d’autres instanciations
+
+.Avec une enumération
+* la définition d’une énumération en Java est similaire à la définition d’une classe où les seules instances possibles sont connues lors de la compilation
+* la seule constante de l’énumération représente l’instance unique
+
+== Exemple: Le programme principal comme un Singleton (avec une classe)
+[source,java]
+----
+class ApplicationSingleton {
+    private static ApplicationSingleton INSTANCE; // L'instance unique
+
+    private ApplicationSingleton() { // Constructeur privé
+        // ...
+    }
+
+    public static ApplicationSingleton getInstance() {
+        if (INSTANCE == null) { // Crée l'instance au premier appel
+            INSTANCE = new ApplicationSingleton();
+        }
+        return INSTANCE;
+    }
+
+    public void run(String[] args) {
+        // ...
+    }
+
+    public static void main(String[] args) {
+        getInstance().run(args);
+    }
+}
+----
+
+== Exemple: Le programme principal comme un Singleton (avec une énumération)
+[source,java]
+----
+enum ApplicationSingleton {
+    ENVIRONNEMENT;
+
+    public void run(String[] args) {
+        // ...
+    }
+
+    public static void main(String[] args) {
+        ENVIRONNEMENT.run(args);
+    }
+}
+----
+
+== Le patron de conception Builder
+.Objectif
+Builder propose une solution pour les cas où la logique de création d’un objet nécessite de nombreux paramètres.
+Il évite de recourir à une multiplication du nombre de constructeurs utilisés pour gérer les combinaisons possibles de paramètres.
+
+.Structure du Builder.
+[#fig:builderdp]
+image::builderdp.png[]
+
+== Exemple: Builder pour la classe `StreetMap` 1/3
+[source,java]
+----
+public class StreetMap {
+    private final Point origin;
+    private final Point destination;
+    
+    private final Color waterColor;
+    private final Color landColor;
+    private final Color highTrafficColor;
+    private final Color mediumTrafficColor;
+    private final Color lowTrafficColor;
+
+    public static class Builder {
+        // cf. slide suivant
+    }
+
+    private StreetMap(Builder builder) {
+        // Required parameters
+        origin      = builder.origin;
+        destination = builder.destination;
+        
+        // Optional parameters
+        waterColor         = builder.waterColor;
+        landColor          = builder.landColor;
+        highTrafficColor   = builder.highTrafficColor;
+        mediumTrafficColor = builder.mediumTrafficColor;
+        lowTrafficColor    = builder.lowTrafficColor;
+    }
+}
+----
+
+== Exemple: La classe imbriquée Builder de `StreetMap` 2/3
+[source,java]
+----
+    public static class Builder {
+        // Required parameters
+        private final Point origin;
+        private final Point destination;
+        
+        // Optional parameters - initialize with default values
+        private Color waterColor         = Color.BLUE;
+        private Color landColor          = new Color(30, 30, 30);
+        private Color highTrafficColor   = Color.RED;
+        private Color mediumTrafficColor = Color.YELLOW;
+        private Color lowTrafficColor    = Color.GREEN;
+        
+        public Builder(Point origin, Point destination) {
+            this.origin      = origin;
+            this.destination = destination;
+        }
+        
+        public Builder waterColor(Color color) {
+            waterColor = color;
+            return this;
+        }
+
+        // idem pour landColor, highTrafficColor, mediumTrafficColor
+        // et lowTrafficColor
+        
+        public StreetMap build() {
+            return new StreetMap(this);
+        }
+    }
+----
+
+== Exemple: Utilisation du Builder 3/3
+[source,java]
+----
+    public static void main(String args[]) {
+        StreetMap map = new StreetMap
+            .Builder(new Point(50, 50), new Point(100, 100))
+            .landColor(Color.GRAY)
+            .waterColor(Color.BLUE.brighter())
+            .build();
+    }
+----
+
+== Le patron de conception Factory method
+.Objectif
+Factory method permet la création d’objets sans préciser explicitement la classe à utiliser.
+Les objets sont créés en utilisant une _méthode de fabrication_ redéfinie dans des sous-classes.
+
+== Exemple: Un labyrinthe avec des salles classiques 1/2
+[source,java]
+----
+public class MazeGame {
+    public MazeGame() { // Template method
+        Room room1 = makeRoom();
+        Room room2 = makeRoom();
+        room1.connect(room2);
+        this.addRoom(room1);
+        this.addRoom(room2);
+    }
+    
+    protected Room makeRoom() { // Factory method
+        return new OrdinaryRoom();
+    }
+}
+----
+
+== Exemple: Un labyrinthe avec des salles magiques 2/2
+[source,java]
+----
+public class MagicMazeGame extends MazeGame {
+    @Override
+    protected Room makeRoom() {
+        return new MagicRoom(); 
+    }
+}
+----
+
+== Méthode de fabrication
+* Une _méthode de fabrication_ (_factory method_) est une méthode qui retourne un nouvel objet
+* Peut être implémentée à l’aide d’un méthode de classe ou du patron Factory method
+* Une _Fabrique_ est une classe concrète qui crée effectivement les objets
+
+== Exemple: Une classe `+Complex+`
+[source,java]
+----
+class Complex {
+    public static Complex fromCartesianFactory(double real, double imaginary) {
+        return new Complex(real, imaginary);
+    }
+    
+    public static Complex fromPolarFactory(double modulus, double angle) {
+        return new Complex(modulus * cos(angle), modulus * sin(angle));
+    }
+    
+    private Complex(double a, double b) {
+        //...
+    }
+}
+
+//...
+
+Complex product = Complex.fromPolarFactory(1, pi);
+----
+
+== Le patron de conception Abstract factory
+.Objectif
+Abstract factory permet d’encapsuler un groupe de _Fabriques_ qui partagent un thème commun sans spécifier les classes concrètes.
+
+* Le client crée une implémentation concrète de la fabrique abstraite et utilise l’interface générique pour créer les objets
+* Le client ne sait pas quel objet concret a été créé
+* L’emploi de ce pattern augmente la complexité du code
+
+== Structure de Abstract factory
+.Structure du Abstract factory.
+[#fig:abstractfactorydp]
+image::abstractfactorydp.png[]
+
+== Exemple: Abstract factory 1/4
+[source,java]
+----
+interface GUIFactory { //Abstract Factory
+    Button createButton();
+    Label createLabel();
+}
+
+interface Button { //Abstract Product
+    void paint();
+}
+
+interface Label { //Abstract Product
+    void paint();
+}
+----
+
+== Exemple: Abstract factory 2/4
+[source,java]
+----
+class WinFactory implements GUIFactory { //Concrete Factory
+    public Button createButton() {
+        return new WinButton();
+    }
+    
+    public Label createLabel() {
+        return new WinLabel();
+    }
+}
+
+class OSXFactory implements GUIFactory { //Concrete Factory
+    public Button createButton() {
+        return new OSXButton();
+    }
+    
+    public Label createLabel() {
+        return new OSXLabel();
+    }
+}
+----
+
+== Exemple: Abstract factory 3/4
+[source,java]
+----
+class OSXButton implements Button { //Concrete Product
+    public void paint() {
+        System.out.println("I'm an OSXButton");
+    }
+}
+
+class WinButton implements Button { //Concrete Product
+    public void paint() {
+        System.out.println("I'm a WinButton");
+    }
+}
+
+class OSXLabel implements Label { //Concrete Product
+    public void paint() {
+        System.out.println("I'm an OSXLabel");
+    }
+}
+
+class WinLabel implements Label { //Concrete Product
+    public void paint() {
+        System.out.println("I'm a WinLabel");
+    }
+}
+----
+
+== Exemple: Abstract factory 4/4
+[source,java]
+----
+// Le client se contente de choisir la fabrique concrète à utiliser
+class Application {
+    public Application(GUIFactory factory) {
+        Button button = factory.createButton();
+        Label label = factory.createLabel();
+        button.paint();
+        label.paint();
+    }
+}
+
+public class ApplicationRunner {
+    public static void main(String[] args) {
+        new Application(createOsSpecificFactory());
+    }
+    
+    public static GUIFactory createOsSpecificFactory() {
+        String osname = System.getProperty("os.name").toLowerCase();
+        if(osname != null && osname.contains("windows"))
+            return new WinFactory();
+        else
+            return new OSXFactory();
+    }
+}
+----

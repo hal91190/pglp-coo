@@ -1,0 +1,17 @@
+= Implémentation du pattern visiteur
+[.todo]#Compléter ce chapitre#
+
+== Description
+* https://refactoring.guru/fr/design-patterns/visitor(Visiteur)
+** Problème : quels principes SOLID ?
+
+== Implémentation
+* objet spécifique pour implémenter la fonctionnalité (visiteur),
+* 1 méthode pour chaque type (avec ou sans surcharge),
+* invocation par une méthode `accept` de l'objet cible pour implémenter le https://refactoring.guru/fr/design-patterns/visitor-double-dispatch(_double dispatch_)
+
+== Structure
+* Exemple en [Java](https://refactoring.guru/fr/design-patterns/visitor/java/example)
+
+== Versions modernes
+* https://nipafx.dev/java-visitor-pattern-pointless/(Visiteur et version moderne de Java)
