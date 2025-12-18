@@ -56,13 +56,9 @@
 
 == Exemple de la Loi de Demeter 1/5
 .Un client paye (*version incorrecte*)
-[source,java]
+[source,java,indent=0]
 ----
-Wallet theWallet = theCustomer.getWallet();
-double totalMoney = theWallet.getTotalMoney();
-if (totalMoney > AMOUNT_TO_PAY_IN_EUROS) {
-    theWallet.subtractMoney(AMOUNT_TO_PAY_IN_EUROS);
-}
+include::{testdir}/principles/demeter/DemeterTest.java[tag=merchant-wrong]
 ----
 
 * Cet exemple est extrait de http://www.ccs.neu.edu/research/demeter/demeter-method/LawOfDemeter/paper-boy/demeter.pdf[The Paperboy, The Wallet, and The Law Of Demeter], David Bock
@@ -74,48 +70,22 @@ if (totalMoney > AMOUNT_TO_PAY_IN_EUROS) {
 .La classe `Customer` (*version incorrecte*)
 [source,java]
 ----
-public class Customer {
-  private String name;
-  private Wallet wallet;
-
-  public Customer(String name, double fortune) {
-    this.name = name;
-    wallet = new Wallet(fortune);
-  }
-
-  public Wallet getWallet() { //<1>
-    return wallet;
-  }
-}
+include::{sourcedir}/principles/demeter/CustomerWrong.java[tag=customer-wrong]
 ----
 <1> Quel est l'intérêt d'avoir un attribut privé si l'accesseur le rend public ?
 
 == Exemple de la Loi de Demeter 3/5
-.La classe `Wallet` (*version incorrecte*)
+.La classe `Wallet`
 [source,java]
 ----
-public class Wallet {
-  private double totalMoney;
-
-  public Wallet(double fortune) {
-    totalMoney = fortune;
-  }
-
-  public double getTotalMoney() {
-    return totalMoney;
-  }
-
-  public void subtractMoney(double amountToPayInEuros) {
-    totalMoney -= amountToPayInEuros;
-  }
-}
+include::{sourcedir}/principles/demeter/Wallet.java[tag=wallet]
 ----
 
 == Exemple de la Loi de Demeter 4/5
 .Un client paye (version corrigée)
-[source,java]
+[source,java,indent=0]
 ----
-double paidAmount = theCustomer.getPayment(AMOUNT_TO_PAY_IN_EUROS);
+include::{testdir}/principles/demeter/DemeterTest.java[tag=merchant-correct]
 ----
 
 * Le créancier doit demander le paiement
@@ -128,25 +98,7 @@ double paidAmount = theCustomer.getPayment(AMOUNT_TO_PAY_IN_EUROS);
 .La classe `Customer` (version corrigée)
 [source,java]
 ----
-public class Customer {
-  private String name;
-  private Wallet wallet;
-
-  public Customer(String name, double fortune) {
-    this.name = name;
-    wallet = new Wallet(fortune);
-  }
-
-  public double getPayment(double amountToPayInEuros) {
-    double totalMoney = wallet.getTotalMoney();
-    double paidAmount = 0.0;
-    if (totalMoney > amountToPayInEuros) {
-      paidAmount = amountToPayInEuros;
-      wallet.subtractMoney(paidAmount);
-    }
-   return paidAmount;
-  }
-}
+include::{sourcedir}/principles/demeter/Customer.java[tag=customer-correct]
 ----
 
 * La classe `Customer` ne publie plus la méthode `getWallet()`

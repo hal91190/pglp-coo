@@ -2,6 +2,8 @@
 :icons: font
 :imagesdir: figs
 :source-highlighter: highlightjs
+:sourcedir: ../../main/java/fr/uvsq/coo
+:testdir: ../../test/java/fr/uvsq/coo
 :revealjsdir: reveal.js
 :revealjs_theme: beige
 :customcss: css/custom.css
