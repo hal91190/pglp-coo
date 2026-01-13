@@ -73,10 +73,47 @@
             <plugin>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctor-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.2.0</version>
+                <dependencies>
+                    <!-- Comment this section to use the default jruby artifact provided by the plugin
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby</artifactId>
+                        <version>10.0.0.1</version>
+                    </dependency> -->
+                    <!-- Comment this section to use the default AsciidoctorJ artifact provided by the plugin
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>3.0.0</version>
+                    </dependency> -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram</artifactId>
+                        <version>3.0.1</version>
+                    </dependency>
+                    <!-- Since asciidoctorj-diagram v3.0.1, these are required -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram-plantuml</artifactId>
+                        <version>1.2025.3</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-diagram-ditaamini</artifactId>
+                        <version>1.0.3</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDirectory>src/asciidoc</sourceDirectory>
+                    <!-- Require the Ruby gem bundled in asciidoctorj-diagram JAR to make them available to Asciidoctor -->
+                    <requires>
+                        <require>asciidoctor-diagram</require>
+                    </requires>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>process-asciidoc</id>
+                        <id>process-html-book</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>process-asciidoc</goal>

@@ -5,5 +5,4 @@
 * Déplacer les codes exemples vers des fichiers sources
 * Générer des slides par chapitre
 * Intro: revoir la section sur la COO
-* Demeter: https://medium.com/vattenfall-tech/the-law-of-demeter-by-example-fd7adbf0c324, https://www.baeldung.com/java-demeter-law
 * Patterns: compléter le chapitre sur le pattern Visiteur

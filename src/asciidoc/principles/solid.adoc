@@ -41,8 +41,21 @@ Single Responsibility Principle], Robert C. Martin
 
 === Exemple: La classe Rectangle viole SRP
 .Un exemple de violation de SRP.
-[#fig:srp-violation]
-image::srp-violation.png[]
+[plantuml, target=srp-violation, format=svg]
+....
+allowmixing
+package "Application de calcul géométrique" as CompApp
+class Rectangle {
+    +draw()
+    +area() : double
+}
+CompApp --> Rectangle
+package "Application GUI" as GraphicApp
+GraphicApp --> Rectangle
+package "Bibliothèque GUI" as GuiLib
+Rectangle --> GuiLib
+GraphicApp --> GuiLib
+....
 
 * La classe `+Rectangle+` possède deux responsabilités
 ** le calcul de surface,
@@ -52,10 +65,26 @@ image::srp-violation.png[]
 dans le rectangle et donc une reconstruction de l’application
 géométrique
 
-=== Exemple: La classe Rectangle modfifée
+=== Exemple: La classe Rectangle modifiée
 .Une application de SRP.
-[#fig:srp-corrected]
-image::srp-corrected.png[]
+[plantuml, target=srp-compliant, format=svg]
+....
+allowmixing
+package "Application de calcul géométrique" as CompApp
+class GeoRectangle {
+    +area() : double
+}
+CompApp --> GeoRectangle
+class Rectangle {
+    +draw()
+}
+Rectangle --> GeoRectangle
+package "Application GUI" as GraphicApp
+GraphicApp --> Rectangle
+package "Bibliothèque GUI" as GuiLib
+Rectangle --> GuiLib
+GraphicApp --> GuiLib
+....
 
 * Cette conception minimise l’impact des changements
 
@@ -82,7 +111,6 @@ source
 l’_abstraction_ en particulier sur les concepts OO
 
 === Intérêt et difficultés d’OCP
-
 * L’intégration de nouveaux besoins ne nécessite que l’ajout de code et
 ne modifie pas l’existant
 ** l’existant ne peut pas être dégradé
@@ -95,138 +123,81 @@ conception
 http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1&hl=en[The
 Open-Closed Principle], Robert C. Martin
 
-=== Exemple: Un exemple de violation d’OCP 1/4
-....
-public enum ShapeType {
-  CIRCLE, SQUARE;
-}
+=== Exemple de violation d’OCP 1/4
+.L'énumération `BadIdeaShapeType`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/BadIdeaShapeType.java[tag=bad-idea-shape-type]
+----
 
-public abstract class Shape {
-  public final ShapeType type;
+.La class abstraite `ShapeWrong`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/ShapeWrong.java[tag=shape-wrong]
+----
 
-  public Shape(ShapeType type) {
-    this.type = type;
-  }
-}
-....
+<1> L’attribut `type` représente le type de forme
 
-* L’attribut type représente le type de forme
-* Suit une approche procédurale (non OO)
+=== Exemple de violation d’OCP 2/4
+.La class `CircleWrong`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/CircleWrong.java[tag=circle-wrong]
+----
 
-=== Exemple: Un exemple de violation d’OCP 2/4
-....
-public class Circle extends Shape {
-  Point2D center;
-  double radius;
+=== Exemple de violation d’OCP 3/4
+.La class `SquareWrong`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/SquareWrong.java[tag=square-wrong]
+----
 
-  public Circle(Point2D center, double radius) {
-    super(ShapeType.CIRCLE);
-    this.center = center;
-    this.radius = radius;
-  }
-}
-....
-
-=== Exemple: Un exemple de violation d’OCP 3/4
-....
-public class Square extends Shape {
-  Point2D topLeft;
-  final double side;
-
-  public Square(Point2D topLeft, double side) {
-    super(ShapeType.SQUARE);
-    this.topLeft = topLeft;
-    this.side = side;
-  }
-}
-	
-....
-
-=== Exemple: Un exemple de violation d’OCP 4/4
-....
-public static double computeArea(Shape s) {
-  double result = 0;
-  
-  switch (s.type) {
-  case CIRCLE:
-    result = computeArea((Circle)s);
-    break;
-  case SQUARE:
-    result = computeArea((Square)s);
-    break;
-  default:
-    assert false : s.type;
-  }
-  return result;
-}
-	
-....
+=== Exemple de violation d’OCP 4/4
+.La méthode `computeAreaWrong`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/GeoComputeWrong.java[tag=compute-area-wrong]
+----
 
 * Ne respecte pas OCP
-** l’ajout d’une forme oblige à modifier computeArea
-* Ce motif se répétera dans toutes les fonctions qui devront
-différencier les formes
+** l’ajout d’une forme oblige à modifier `computeAreaWrong`
+* Ce motif se répétera dans toutes les fonctions qui devront différencier les formes
 
-=== Exemple: Un exemple respectant OCP 1/3
-....
-public abstract class Shape {
-    public abstract double computeArea();
-}
+=== Exemple respectant OCP 1/3
+.La class abstraite `Shape`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/Shape.java[tag=shape]
+----
 
-public class Circle extends Shape {
-    Point2D center;
-    double radius;
-
-    public Circle(Point2D center, double radius) {
-        this.center = center;
-        this.radius = radius;
-    }
-
-    @Override
-    public double computeArea() {
-        return PI * pow(radius, 2.0);
-    }
-}
-....
+.La class `Circle`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/Circle.java[tag=circle]
+----
 
 * Le type de forme s’appuie sur le polymorphisme
 
-=== Exemple: Un exemple respectant OCP 2/3
-....
-public class Square extends Shape {
-    Point2D topLeft;
-    final double side;
-    
-    public Square(Point2D topLeft, double side) {
-        this.topLeft = topLeft;
-        this.side = side;
-    }
-    
-    @Override
-    public double computeArea() {
-        return pow(side, 2.0);
-    }
-}
-....
+=== Exemple respectant OCP 2/3
+.La class `Square`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/ocp/Square.java[tag=square]
+----
 
-=== Exemple: Un exemple respectant OCP 3/3
-....
-shapes = new ArrayList<>();
-shapes.add(new Circle(new Point2D(1.0, 1.0), 1.0));
-shapes.add(new Square(new Point2D(3.0, 4.0), 2.0));
-
-double total = shapes.stream()
-    .mapToDouble(Shape::computeArea)
-    .sum();
-....
+=== Exemple respectant OCP 3/3
+.Calcul de l’aire des formes
+[source,java,indent=0]
+----
+include::{testdir}/solid/ocp/GeoComputeTest.java[tag=compute-area]
+----
 
 * Le calcul utilise le polymorphisme
-* Aucune modification de l’existant n’est nécessaire pour ajouter une
-forme
+* Aucune modification de l’existant n’est nécessaire pour ajouter une forme
 
 === Implications d’OCP
 * Les attributs doivent être privés
-** quand un attribut change, toute les méthodes qui en dépendent doivent changer aussi
+** quand un attribut change, toutes les méthodes qui en dépendent doivent changer aussi
 ** ces méthodes ne sont pas fermées par rapport à cet attribut
 *** normal pour les méthodes de la classe elle-même
 *** non souhaitable pour les autres méthodes (_encapsulation_)
