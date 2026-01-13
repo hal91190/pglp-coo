@@ -32,12 +32,9 @@ Single Responsibility Principle (SRP) A class should have only one
 reason to change.
 
 * SRP est lié à la mesure de la _cohésion_
-* La cohésion mesure le rapport entre une fonctionnalité attendue et le
-service rendu par une classe (ou un module)
+* La cohésion mesure le rapport entre une fonctionnalité attendue et le service rendu par une classe (ou un module)
 * SRP relie cette notion au concept de changement
-* Les exemples sont issus de
-https://docs.google.com/open?id=0ByOwmqah_nuGNHEtcU5OekdDMkk[SRP: The
-Single Responsibility Principle], Robert C. Martin
+* Les exemples sont issus de https://docs.google.com/open?id=0ByOwmqah_nuGNHEtcU5OekdDMkk[SRP: The Single Responsibility Principle], Robert C. Martin
 
 === Exemple: La classe Rectangle viole SRP
 .Un exemple de violation de SRP.
@@ -61,9 +58,7 @@ GraphicApp --> GuiLib
 ** le calcul de surface,
 ** l’affichage graphique.
 * L’application de calcul géométrique dépend de l’affichage graphique
-* Un changement de l’application graphique peut nécessiter un changement
-dans le rectangle et donc une reconstruction de l’application
-géométrique
+* Un changement de l’application graphique peut nécessiter un changement dans le rectangle et donc une reconstruction de l’application géométrique
 
 === Exemple: La classe Rectangle modifiée
 .Une application de SRP.
@@ -100,28 +95,20 @@ GraphicApp --> GuiLib
 
 == Open Closed Principle (OCP)
 === Open Closed Principle (OCP)
-Open Closed Principle (OCP) A module should be open for extension but
-closed for modification.
+Open Closed Principle (OCP) A module should be open for extension but closed for modification.
 
-* Les modules (ou les classes) doivent pouvoir être étendus mais sans
-devoir être modifiés
-** le comportement doit pouvoir être changé sans modification du code
-source
-* Les techniques permettant d’atteindre ce but sont basées sur
-l’_abstraction_ en particulier sur les concepts OO
+* Les modules (ou les classes) doivent pouvoir être étendus mais sans devoir être modifiés
+** le comportement doit pouvoir être changé sans modification du code source
+* Les techniques permettant d’atteindre ce but sont basées sur l’_abstraction_ en particulier sur les concepts OO
 
 === Intérêt et difficultés d’OCP
-* L’intégration de nouveaux besoins ne nécessite que l’ajout de code et
-ne modifie pas l’existant
+* L’intégration de nouveaux besoins ne nécessite que l’ajout de code et ne modifie pas l’existant
 ** l’existant ne peut pas être dégradé
 ** les modifications ne se propagent pas aux modules dépendants
 * Il est difficile de respecter à la lettre ce principe
 ** peut rendre la conception complexe
-** respecter OCP partiellement peut déjà apporter beaucoup à la
-conception
-* Les exemples sont issus de
-http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1&hl=en[The
-Open-Closed Principle], Robert C. Martin
+** respecter OCP partiellement peut déjà apporter beaucoup à la conception
+* Les exemples sont issus de http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1&hl=en[The Open-Closed Principle], Robert C. Martin
 
 === Exemple de violation d’OCP 1/4
 .L'énumération `BadIdeaShapeType`
@@ -208,8 +195,7 @@ include::{testdir}/solid/ocp/GeoComputeTest.java[tag=compute-area]
 
 == Liskov Substitution Principle (LSP)
 === Liskov Substitution Principle (LSP)
-Liskov Substitution Principle (LSP) Derived classes must be
-substitutable for their base classes.
+Liskov Substitution Principle (LSP) Derived classes must be substitutable for their base classes.
 
 * Est issu des travaux de Barbara Liskov
 ** if for each object latexmath:[o_1] of type latexmath:[S] there is an
