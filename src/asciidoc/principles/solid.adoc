@@ -8,7 +8,7 @@
 * La bonne gestion des dépendances est nécessaire à la production d’un logiciel de qualité
 
 === Principes de conception des classes
-[cols="<,<,<",options="header",]
+[cols="<,<,<"]
 |===
 |SRP |Single Responsibility Principle |A class should have one, and only
 one, reason to change.
@@ -108,7 +108,7 @@ Open Closed Principle (OCP) A module should be open for extension but closed for
 * Il est difficile de respecter à la lettre ce principe
 ** peut rendre la conception complexe
 ** respecter OCP partiellement peut déjà apporter beaucoup à la conception
-* Les exemples sont issus de http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgN2M5MTkwM2EtNWFkZC00ZTI3LWFjZTUtNTFhZGZiYmUzODc1&hl=en[The Open-Closed Principle], Robert C. Martin
+* Les exemples sont issus de https://objectmentor.com/resources/articles/ocp.pdf[The Open-Closed Principle], Robert C. Martin
 
 === Exemple de violation d’OCP 1/4
 .L'énumération `BadIdeaShapeType`
@@ -198,54 +198,29 @@ include::{testdir}/solid/ocp/GeoComputeTest.java[tag=compute-area]
 Liskov Substitution Principle (LSP) Derived classes must be substitutable for their base classes.
 
 * Est issu des travaux de Barbara Liskov
-** if for each object latexmath:[o_1] of type latexmath:[S] there is an
-object latexmath:[o_2] of type latexmath:[T] such that for all programs
-latexmath:[P] defined in terms of latexmath:[T], the behavior of
-latexmath:[P] is unchanged when latexmath:[o_1] is substituted for
-latexmath:[o_2] then latexmath:[S] is a subtype of latexmath:[T].
+** if for each object latexmath:[o_1] of type latexmath:[S] there is an object latexmath:[o_2] of type latexmath:[T] such that for all programs latexmath:[P] defined in terms of latexmath:[T], the behavior of latexmath:[P] is unchanged when latexmath:[o_1] is substituted for latexmath:[o_2] then latexmath:[S] is a subtype of latexmath:[T].
 * également lié à l’approche _Design By Contract_, Bertrand Meyer
 ** derived methods should expect no more and provide no less.
-* Les exemples sont issus de
-http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgNzAzZjA5ZmItNjU3NS00MzQ5LTkwYjMtMDJhNDU5ZTM0MTlh&hl=en[The
-Liskov Substitution Principle], Robert C. Martin
+* Les exemples sont issus de _The Liskov Substitution Principle, Robert C. Martin_
 
 === Conséquence d’une violation du LSP
-* Une méthode qui ne respecte pas LSP doit disposer d’informations sur
-les sous-classes
+* Une méthode qui ne respecte pas LSP doit disposer d’informations sur les sous-classes
 ** l’ajout d’un sous-classe impose de modifier la méthode
 ** violation d’OCP
 
 === Exemple: Un exemple de violation de LSP 1/3
-....
-public class Rectangle {
-    private int height;
-    private int width;
-    
-    public int getHeight() { return height; }
-    public void setHeight(int height) { this.height = height; }
-    public int getWidth() { return width; }
-    public void setWidth(int width) { this.width = width; }
-}
-	
-....
+.La class `Rectangle`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/lsp/Rectangle.java[tag=rectangle]
+----
 
 === Exemple: Un exemple de violation de LSP 2/3
-....
-public class Square extends Rectangle {
-    private void setSide(int side) {
-        super.setHeight(side);
-        super.setWidth(side);
-    }
-    
-    public void setHeight(int height) {
-        setSide(height);
-    }
-    
-    public void setWidth(int width) {
-        setSide(width);
-    }
-}
-....
+.La class `SquareWrong`
+[source,java,indent=0]
+----
+include::{sourcedir}/solid/lsp/SquareWrong.java[tag=square-wrong]
+----
 
 * Mathématiquement, un carré est un rectangle (relation _ISA_)
 ** modélisé par un héritage entre Rectangle et Square
@@ -255,22 +230,29 @@ public class Square extends Rectangle {
 ** bricolage pour que le comportement soit adapté au carré
 
 === Exemple: Un exemple de violation de LSP 3/3
-....
-Rectangle r = new Rectangle();
-r.setHeight(3);
-r.setWidth(4);
-assertThat(r.getHeight() * r.getWidth(), is(12)); // OK
+.L'aire du rectangle est 12
+[source,java,indent=0]
+----
+include::{testdir}/solid/lsp/LspTest.java[tag=test-rectangle]
+----
 
-Rectangle r = new Square();
-r.setHeight(3);
-r.setWidth(4);
-assertThat(r.getHeight() * r.getWidth(), is(12)); // Échoue
-....
+.L'aire du carré devrait être 12 mais ...
+[source,java,indent=0]
+----
+include::{testdir}/solid/lsp/LspTest.java[tag=test-lsp-violation]
+----
 
-* L’utilisateur suppose que la modification de la hauteur n’a pas
-d’impact sur la largeur (et réciproquement)
-* Le comportement n’est pas le même en présence d’un rectangle ou d’un
-carré
+----
+[INFO] Running fr.uvsq.coo.solid.lsp.LspTest
+[ERROR] Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.016 s <<< FAILURE! -- in fr.uvsq.coo.solid.lsp.LspTest
+[...]
+[INFO] Results:
+[ERROR] Failures: 
+[ERROR]   LspTest.testLspViolation:21 Area should be 12 ==> expected: <12> but was: <16>
+----
+
+* L’utilisateur suppose que la modification de la hauteur n’a pas d’impact sur la largeur (et réciproquement)
+* Le comportement n’est pas le même en présence d’un rectangle ou d’un carré
 ** violation de LSP
 ** le code client doit changer pour supporter la classe Square
 ** violation d’OCP
