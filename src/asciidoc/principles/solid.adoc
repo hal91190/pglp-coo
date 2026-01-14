@@ -208,14 +208,14 @@ Liskov Substitution Principle (LSP) Derived classes must be substitutable for th
 ** l’ajout d’un sous-classe impose de modifier la méthode
 ** violation d’OCP
 
-=== Exemple: Un exemple de violation de LSP 1/3
+=== Exemple de violation de LSP 1/3
 .La class `Rectangle`
 [source,java,indent=0]
 ----
 include::{sourcedir}/solid/lsp/Rectangle.java[tag=rectangle]
 ----
 
-=== Exemple: Un exemple de violation de LSP 2/3
+=== Exemple de violation de LSP 2/3
 .La class `SquareWrong`
 [source,java,indent=0]
 ----
@@ -229,7 +229,7 @@ include::{sourcedir}/solid/lsp/SquareWrong.java[tag=square-wrong]
 ** idem pour les getters/setters correspondants
 ** bricolage pour que le comportement soit adapté au carré
 
-=== Exemple: Un exemple de violation de LSP 3/3
+=== Exemple de violation de LSP 3/3
 .L'aire du rectangle est 12
 [source,java,indent=0]
 ----
@@ -279,100 +279,103 @@ depend upon interfaces that they do not use.
 * Une interface ayant de trop nombreuses méthodes manque de cohésion
 * Elle doit être découpée en fonction des besoins des clients
 * Un client interagit à travers une interface adaptée à son besoin
-* Les exemples sont issus de
-http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgOTViYjJhYzMtMzYxMC00MzFjLWJjMzYtOGJiMDc5N2JkYmJi&hl=en[The
-Interface Segregation Principle], Robert C. Martin
+* Les exemples sont issus de _The Interface Segregation Principle, Robert C. Martin_
 
-=== Exemple: Un exemple de violation de ISP 1/3
-....
+=== Exemple de violation de ISP 1/3
+[source,java]
+----
 public class Rectangle {
-    private int height;
-    private int width;
-    
-    public double computeArea() {
-        return height * width;
-    }
-    
-    public void draw(GraphicsContext gc) {
-        gc.setFill(Color.GREEN);
-        gc.fillRoundRect(110, 60, 30, 30, 10, 10);
-    }
+  private int height;
+  private int width;
+  
+  public double computeArea() {
+    return height * width;
+  }
+  
+  public void draw(GraphicsContext gc) {
+    gc.setFill(Color.GREEN);
+    gc.fillRoundRect(110, 60, 30, 30, 10, 10);
+  }
 }
-....
+----
 
 * fournit le calcul d’aire et l’affichage graphique (viole SRP)
 * dépend de JavaFX
 
-=== Exemple: Un exemple de violation de ISP 2/3
-....
+=== Exemple de violation de ISP 2/3
+[source,java]
+----
 public class DrawingApp extends Application {
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Drawing Operations Test");
-        Group root = new Group();
-        Canvas canvas = new Canvas(300, 250);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        
-        Rectangle r = new Rectangle();
-        r.draw(gc);
-        
-        root.getChildren().add(canvas);
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();
-    }
+  @Override
+  public void start(Stage primaryStage) throws Exception {
+    primaryStage.setTitle("Drawing Operations Test");
+    Group root = new Group();
+    Canvas canvas = new Canvas(300, 250);
+    GraphicsContext gc = canvas.getGraphicsContext2D();
     
-    public static void main(String[] args) {
-        launch(args);
-    }
+    Rectangle r = new Rectangle();
+    r.draw(gc);
+    
+    root.getChildren().add(canvas);
+    primaryStage.setScene(new Scene(root));
+    primaryStage.show();
+  }
+  
+  public static void main(String[] args) {
+    launch(args);
+  }
 }
-....
+----
 
-=== Exemple: Un exemple de violation de ISP 3/3
-....
+=== Exemple de violation de ISP 3/3
+[source,java]
+----
 public class GeometricApp {
-    public static void main(String[] args) {
-        Rectangle r = new Rectangle();
-        System.out.println(r.computeArea());
-    }
+  public static void main(String[] args) {
+    Rectangle r = new Rectangle();
+    System.out.println(r.computeArea());
+  }
 }
-....
+----
 
 * Dépend inutilement de JavaFX
-* Un changement dans les besoins de l’application graphique peut
-nécessiter une recompilation de l’application géométrique
+* Un changement dans les besoins de l’application graphique peut nécessiter une recompilation de l’application géométrique
 
-=== Exemple: Un exemple respectant ISP 1/2
-....
+=== Exemple respectant ISP 1/2
+[source,java]
+----
 public interface DrawableRectangle {
-    void draw(GraphicsContext gc);
+  void draw(GraphicsContext gc);
 }
 
 public interface GeometricRectangle {
-    double computeArea();
+  double computeArea();
 }
-....
+----
 
 * Vont permettre d’isoler les applications de la classe concrète
-* Met en œuvre le pattern Adaptateur
+* Met en œuvre le pattern _Adaptateur_
 
-=== Exemple: Un exemple respectant ISP 2/2
-....
+=== Exemple respectant ISP 2/2
+[source,java]
+----
 public class Rectangle implements GeometricRectangle, DrawableRectangle {
 //...
-....
+----
 
-....
+[source,java]
+----
 DrawableRectangle dr = // logique de création de l'instance
 dr.draw(gc);
-....
+----
 
-....
+[source,java]
+----
 GeometricRectangle gr = // logique de création de l'instance
 System.out.println(gr.computeArea());
-....
+----
 
-* L’application graphique ne dépend plus de l’application graphique et
-de ses changements
+* L’application graphique ne dépend plus de l’application graphique et de ses changements
 
 == Dependency Inversion Principle (DIP)
 === Dependency Inversion Principle (DIP)
