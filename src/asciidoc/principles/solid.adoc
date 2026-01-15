@@ -28,8 +28,9 @@ concretions.
 == Single Responsibility Principle (SRP)
 
 === Single Responsibility Principle (SRP)
-Single Responsibility Principle (SRP) A class should have only one
-reason to change.
+.Single Responsibility Principle (SRP)
+[quote]
+A class should have only one reason to change.
 
 * SRP est lié à la mesure de la _cohésion_
 * La cohésion mesure le rapport entre une fonctionnalité attendue et le service rendu par une classe (ou un module)
@@ -95,7 +96,9 @@ GraphicApp --> GuiLib
 
 == Open Closed Principle (OCP)
 === Open Closed Principle (OCP)
-Open Closed Principle (OCP) A module should be open for extension but closed for modification.
+.Open Closed Principle (OCP)
+[quote]
+A module should be open for extension but closed for modification.
 
 * Les modules (ou les classes) doivent pouvoir être étendus mais sans devoir être modifiés
 ** le comportement doit pouvoir être changé sans modification du code source
@@ -195,7 +198,9 @@ include::{testdir}/solid/ocp/GeoComputeTest.java[tag=compute-area]
 
 == Liskov Substitution Principle (LSP)
 === Liskov Substitution Principle (LSP)
-Liskov Substitution Principle (LSP) Derived classes must be substitutable for their base classes.
+.Liskov Substitution Principle (LSP)
+[quote]
+Derived classes must be substitutable for their base classes.
 
 * Est issu des travaux de Barbara Liskov
 ** if for each object latexmath:[o_1] of type latexmath:[S] there is an object latexmath:[o_2] of type latexmath:[T] such that for all programs latexmath:[P] defined in terms of latexmath:[T], the behavior of latexmath:[P] is unchanged when latexmath:[o_1] is substituted for latexmath:[o_2] then latexmath:[S] is a subtype of latexmath:[T].
@@ -272,8 +277,9 @@ include::{testdir}/solid/lsp/LspTest.java[tag=test-lsp-violation]
 
 == Interface Segregation Principle (ISP)
 === Interface Segregation Principle (ISP)
-Interface Segregation Principle (ISP) Client should not be forced to
-depend upon interfaces that they do not use.
+.Interface Segregation Principle (ISP)
+[quote]
+Client should not be forced to depend upon interfaces that they do not use.
 
 * ISP aborde la question de la taille des interfaces des classes
 * Une interface ayant de trop nombreuses méthodes manque de cohésion
@@ -379,12 +385,10 @@ System.out.println(gr.computeArea());
 
 == Dependency Inversion Principle (DIP)
 === Dependency Inversion Principle (DIP)
-Dependency Inversion Principle (DIP)
-
-* High level modules should not depend upon low level modules. Both
-should depend upon abstractions.
-* Abstractions should not depend upon details. Details should depend
-upon abstractions.
+.Dependency Inversion Principle (DIP)
+[quote]
+* High level modules should not depend upon low level modules. Both should depend upon abstractions.
+* Abstractions should not depend upon details. Details should depend upon abstractions.
 
 * Les abstractions sont moins sujettes aux changements
 ** elles ne doivent pas dépendre d’éléments moins stables
