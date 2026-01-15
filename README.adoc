@@ -1,6 +1,7 @@
 = Cours de Conception Orientée-Objet
 
 == TODO
+* Changer et développer l'exemple sur DIP
 * Refaire l'ensemble des diagrammes avec PlantUML ou Dia
 * Déplacer les codes exemples vers des fichiers sources
 * Générer des slides par chapitre

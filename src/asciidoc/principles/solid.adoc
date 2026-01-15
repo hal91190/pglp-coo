@@ -34,7 +34,7 @@ reason to change.
 * SRP est lié à la mesure de la _cohésion_
 * La cohésion mesure le rapport entre une fonctionnalité attendue et le service rendu par une classe (ou un module)
 * SRP relie cette notion au concept de changement
-* Les exemples sont issus de https://docs.google.com/open?id=0ByOwmqah_nuGNHEtcU5OekdDMkk[SRP: The Single Responsibility Principle], Robert C. Martin
+* Les exemples sont issus de https://objectmentor.com/resources/articles/srp.pdf[SRP: The Single Responsibility Principle], Robert C. Martin
 
 === Exemple: La classe Rectangle viole SRP
 .Un exemple de violation de SRP.
@@ -201,7 +201,7 @@ Liskov Substitution Principle (LSP) Derived classes must be substitutable for th
 ** if for each object latexmath:[o_1] of type latexmath:[S] there is an object latexmath:[o_2] of type latexmath:[T] such that for all programs latexmath:[P] defined in terms of latexmath:[T], the behavior of latexmath:[P] is unchanged when latexmath:[o_1] is substituted for latexmath:[o_2] then latexmath:[S] is a subtype of latexmath:[T].
 * également lié à l’approche _Design By Contract_, Bertrand Meyer
 ** derived methods should expect no more and provide no less.
-* Les exemples sont issus de _The Liskov Substitution Principle, Robert C. Martin_
+* Les exemples sont issus de https://objectmentor.com/resources/articles/lsp.pdf[The Liskov Substitution Principle], Robert C. Martin
 
 === Conséquence d’une violation du LSP
 * Une méthode qui ne respecte pas LSP doit disposer d’informations sur les sous-classes
@@ -279,7 +279,7 @@ depend upon interfaces that they do not use.
 * Une interface ayant de trop nombreuses méthodes manque de cohésion
 * Elle doit être découpée en fonction des besoins des clients
 * Un client interagit à travers une interface adaptée à son besoin
-* Les exemples sont issus de _The Interface Segregation Principle, Robert C. Martin_
+* Les exemples sont issus de https://objectmentor.com/resources/articles/isp.pdf[The Interface Segregation Principle], Robert C. Martin
 
 === Exemple de violation de ISP 1/3
 [source,java]
@@ -300,7 +300,7 @@ public class Rectangle {
 ----
 
 * fournit le calcul d’aire et l’affichage graphique (viole SRP)
-* dépend de JavaFX
+* dépend d'une bibliothèque GUI (_JavaFX_)
 
 === Exemple de violation de ISP 2/3
 [source,java]
@@ -375,7 +375,7 @@ GeometricRectangle gr = // logique de création de l'instance
 System.out.println(gr.computeArea());
 ----
 
-* L’application graphique ne dépend plus de l’application graphique et de ses changements
+* L’application géométrique ne dépend plus de l’application graphique et de ses changements
 
 == Dependency Inversion Principle (DIP)
 === Dependency Inversion Principle (DIP)
@@ -388,24 +388,21 @@ upon abstractions.
 
 * Les abstractions sont moins sujettes aux changements
 ** elles ne doivent pas dépendre d’éléments moins stables
-* Plus de détails dans
-http://docs.google.com/a/cleancoder.com/viewer?a=v&pid=explorer&chrome=true&srcid=0BwhCYaYDn8EgMjdlMWIzNGUtZTQ0NC00ZjQ5LTkwYzQtZjRhMDRlNTQ3ZGMz&hl=en[The
-Dependency Inversion Principle], Robert C. Martin
+* Plus de détails dans https://objectmentor.com/resources/articles/dip.pdf[The Dependency Inversion Principle], Robert C. Martin
 
-=== Exemple: Un exemple d’application de DIP
-....
+=== Exemple d’application de DIP
+//TODO: changer et développer cet exemple
+[source,java]
+----
 public static void copy(BufferedReader from, BufferedWriter to) throws IOException {
     String line = null;
     while ((line = from.readLine()) != null) {
         to.write(line);
     }
 }
-....
+----
 
-* `+BufferedReader+` et `+BufferedWriter+` sont des abstractions pour la
-source et la destination
-* La logique de la copie est indépendante du type de source et de
-destination (fichier, mémoire, réseau, …)
+* `+BufferedReader+` et `+BufferedWriter+` sont des abstractions pour la source et la destination
+* La logique de la copie est indépendante du type de source et de destination (fichier, mémoire, réseau, …)
 * La création d’instances viole souvent le DIP
-** utilisation du pattern AbstractFactory ou de l’_injection de
-dépendances_
+** utilisation du pattern AbstractFactory ou de l’_injection de dépendances_
