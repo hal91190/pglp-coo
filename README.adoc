@@ -7,3 +7,4 @@
 * Générer des slides par chapitre
 * Intro: revoir la section sur la COO
 * Patterns: compléter le chapitre sur le pattern Visiteur
+* Patterns: pour chaque pattern, ajouter des exemples d'utilisation dans la bibliothèque standard Java

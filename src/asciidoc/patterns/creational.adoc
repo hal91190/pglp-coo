@@ -2,150 +2,86 @@
 
 == Le patron de conception Singleton
 .Objectif
-Singleton garantit qu’une seule instance d’une classe sera créée et fournit un accès uniforme à cet unique objet.
+_Singleton_ garantit qu’une seule instance d’une classe sera créée et fournit un accès uniforme à cet unique objet.
 
 .Structure du Singleton.
-[#fig:singletondp]
-image::singleton_class.png[]
+[plantuml, target=singleton, format=svg]
+----
+class Singleton {
+    {static} -instance : Singleton
+    -Singleton()
+    {static} +getInstance() : Singleton
+}
+note right of Singleton::getInstance
+  ""return instance;""
+end note
+----
 
-== Le Singleton en Java: Deux approches possibles
+== Le Singleton en Java: deux approches possibles
 .Avec une classe
 * un attribut de classe privé fait référence à l’unique instance de la classe
 * une méthode de classe publique permet de récupérer cette instance
 * le constructeur de la classe est privé afin de ne pas permettre d’autres instanciations
+
+CAUTION: La création de l'instance est délicate.
 
 .Avec une enumération
 * la définition d’une énumération en Java est similaire à la définition d’une classe où les seules instances possibles sont connues lors de la compilation
 * la seule constante de l’énumération représente l’instance unique
 
 == Exemple: Le programme principal comme un Singleton (avec une classe)
-[source,java]
+[source,java,indent=0]
 ----
-class ApplicationSingleton {
-    private static ApplicationSingleton INSTANCE; // L'instance unique
-
-    private ApplicationSingleton() { // Constructeur privé
-        // ...
-    }
-
-    public static ApplicationSingleton getInstance() {
-        if (INSTANCE == null) { // Crée l'instance au premier appel
-            INSTANCE = new ApplicationSingleton();
-        }
-        return INSTANCE;
-    }
-
-    public void run(String[] args) {
-        // ...
-    }
-
-    public static void main(String[] args) {
-        getInstance().run(args);
-    }
-}
+include::{sourcedir}/singleton/MainAsaClass.java[tag=main-as-a-class]
 ----
 
 == Exemple: Le programme principal comme un Singleton (avec une énumération)
-[source,java]
+[source,java,indent=0]
 ----
-enum ApplicationSingleton {
-    ENVIRONNEMENT;
-
-    public void run(String[] args) {
-        // ...
-    }
-
-    public static void main(String[] args) {
-        ENVIRONNEMENT.run(args);
-    }
-}
+include::{sourcedir}/singleton/MainAsAnEnum.java[tag=main-as-an-enum]
 ----
 
 == Le patron de conception Builder
 .Objectif
-Builder propose une solution pour les cas où la logique de création d’un objet nécessite de nombreux paramètres.
+_Builder_ propose une solution pour les cas où la logique de création d’un objet nécessite de nombreux paramètres.
 Il évite de recourir à une multiplication du nombre de constructeurs utilisés pour gérer les combinaisons possibles de paramètres.
 
 .Structure du Builder.
-[#fig:builderdp]
-image::builderdp.png[]
+[plantuml, target=builder, format=svg]
+----
+interface Builder {
+    +buildPartA() : void
+    +buildPartB() : void
+    +build() : Product
+}
+class ConcreteBuilder {
+    -product : Product
+    +buildPartA() : void
+    +buildPartB() : void
+    +build() : Product
+}
+Builder <|-- ConcreteBuilder
+class Product {
+}
+ConcreteBuilder ..> Product : creates
+----
 
 == Exemple: Builder pour la classe `StreetMap` 1/3
-[source,java]
+[source,java,indent=0]
 ----
-public class StreetMap {
-    private final Point origin;
-    private final Point destination;
-    
-    private final Color waterColor;
-    private final Color landColor;
-    private final Color highTrafficColor;
-    private final Color mediumTrafficColor;
-    private final Color lowTrafficColor;
-
-    public static class Builder {
-        // cf. slide suivant
-    }
-
-    private StreetMap(Builder builder) {
-        // Required parameters
-        origin      = builder.origin;
-        destination = builder.destination;
-        
-        // Optional parameters
-        waterColor         = builder.waterColor;
-        landColor          = builder.landColor;
-        highTrafficColor   = builder.highTrafficColor;
-        mediumTrafficColor = builder.mediumTrafficColor;
-        lowTrafficColor    = builder.lowTrafficColor;
-    }
-}
+include::{sourcedir}/builder/StreetMap.java[tag=streetmap-class]
 ----
 
 == Exemple: La classe imbriquée Builder de `StreetMap` 2/3
-[source,java]
+[source,java,indent=0]
 ----
-    public static class Builder {
-        // Required parameters
-        private final Point origin;
-        private final Point destination;
-        
-        // Optional parameters - initialize with default values
-        private Color waterColor         = Color.BLUE;
-        private Color landColor          = new Color(30, 30, 30);
-        private Color highTrafficColor   = Color.RED;
-        private Color mediumTrafficColor = Color.YELLOW;
-        private Color lowTrafficColor    = Color.GREEN;
-        
-        public Builder(Point origin, Point destination) {
-            this.origin      = origin;
-            this.destination = destination;
-        }
-        
-        public Builder waterColor(Color color) {
-            waterColor = color;
-            return this;
-        }
-
-        // idem pour landColor, highTrafficColor, mediumTrafficColor
-        // et lowTrafficColor
-        
-        public StreetMap build() {
-            return new StreetMap(this);
-        }
-    }
+include::{sourcedir}/builder/StreetMap.java[tag=streetmap-builder]
 ----
 
 == Exemple: Utilisation du Builder 3/3
-[source,java]
+[source,java,indent=0]
 ----
-    public static void main(String args[]) {
-        StreetMap map = new StreetMap
-            .Builder(new Point(50, 50), new Point(100, 100))
-            .landColor(Color.GRAY)
-            .waterColor(Color.BLUE.brighter())
-            .build();
-    }
+include::{testdir}/builder/BuilderTest.java[tag=streetmap-test]
 ----
 
 == Le patron de conception Factory method

@@ -2,43 +2,36 @@
 
 == Patron de conception
 * Un _patron de conception_ (_Design pattern_) est une solution générique d’implémentation répondant à un problème spécifique.
-* Communément utilisés dans un contexte OO sous la forme d’une structure de classe.
-* Popularisés par le livre *Design Patterns : Catalogue de modèles de conceptions réutilisables*, _Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides_, Vuibert, 1999
-** généralement nommé _GoF_ (_Gang of Four_)
-** présente 23 patterns et les applique sur des exemples en C++
-* Un pattern est la formalisation de bonnes pratiques communément utilisées pour la résolution d’un problème récurrent
+** communément utilisés dans un contexte OO sous la forme d’une structure de classe et d'interactions entre objets
+* Un pattern est la formalisation de bonnes pratiques habituellement utilisées pour la résolution d’un problème récurrent
 ** l’expression d’un pattern est composée d’un ensemble de sections (nom, objectif, applicabilité, structure, …)
+* Popularisés par le livre https://en.wikipedia.org/wiki/Design_Patterns[*Design Patterns: Elements of Reusable Object-Oriented Software*], _Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides_, Addison-Wesley, 1994
+** généralement nommé _GoF_ (_Gang of Four_)
+** formalise 23 patterns et les applique sur des exemples en C++
+** recommande de *« Programmer une interface, pas une implémentation »* et de *« Favoriser la composition d’objets plutôt que l’héritage de classes »*
+* Largement étoffés par la suite (https://en.wikipedia.org/wiki/Concurrency_pattern[patrons de concurrence], …)
 
 == Utilisation des design patterns
 * Les patrons de conception sont des outils supplémentaires pour réaliser une bonne conception
 ** s’intègre naturellement dans un processus de développement
-** La difficulté réside dans l’identification des situations d’application
+** la difficulté réside dans l’identification des situations d’application
 * Chaque pattern doit être instancié dans le contexte où il est utilisé
-* Ils ne sont pas toujours une bonne solution (risque de sur-conception)
+* Ils ne sont pas toujours une bonne solution
+** risque de sur-conception (complexité supplémentaire)
+** remplacement par des fonctionnalités natives du langage (https://wiki.c2.com/?AreDesignPatternsMissingLanguageFeatures[Are Design Patterns Missing Language Features?])
 
 == Notions liées
 [horizontal]
-Idiome:: construction utilisée de façon récurrente dans un langage de programmation donné pour réaliser une tâche simple
-  +
-  * `+i+++` à la place de `+i = i + 1+` en Java, C, …
-  * `+for (element : liste) {}+` pour parcourir les éléments d’une collection
-Pattern d’architecture:: solution générique et réutilisable à un problème d’architecture logicielle
-  +
-  * modèle _MVC_ (_Model-View-Controller_)
-Pattern d’entreprise:: solution pour la structuration d’une application d’entreprise
-  +
-  * http://martinfowler.com/eaaCatalog/serviceLayer.html[Service Layer]
-Anti-pattern:: solution commune à un problème récurrent mais qui est en général inefficace et contre-productive
-  +
-  * https://en.wikipedia.org/wiki/Anemic_domain_model[Anemic domain model]
-  * https://en.wikipedia.org/wiki/God_object[God object]
+https://en.wikipedia.org/wiki/Programming_idiom[Idiome]:: construction utilisée de façon récurrente dans un langage de programmation donné pour réaliser une tâche simple (`++i` à la place de `i = i + 1` en Java, `for (element : liste) { … }` pour parcourir les éléments d’une collection, …)
+https://en.wikipedia.org/wiki/Architectural_pattern[Pattern d’architecture]:: solution générique et réutilisable à un problème d’architecture logicielle (https://en.wikipedia.org/wiki/Architectural_pattern[_Model-View-Controller_], …)
+https://en.wikipedia.org/wiki/Enterprise_architecture_framework[Enterprise architecture framework]:: spécification sur la façon d'organiser et de présenter l'architecture informatique d'un organisme
+https://en.wikipedia.org/wiki/Anti-pattern[Anti-pattern]:: solution commune à un problème récurrent mais qui est en général inefficace et contre-productive (https://en.wikipedia.org/wiki/Anemic_domain_model[Anemic domain model], https://en.wikipedia.org/wiki/God_object[God object], …)
 
 == Classification des design patterns
 [horizontal]
-Patrons de création:: traitent de la création et de l’initialisation d’objet
-  +
-  * masque les classes concrètes utilisées et leur mode de création
-Patrons de structure::
-  traitent de l’organisation des relations entre classes
-Patrons de comportement::
-  traitent de la communication entre objets
+https://en.wikipedia.org/wiki/Creational_pattern[Patrons de création]:: création et initialisation d’objets
++
+* sépare la logique de création d’objets de leur utilisation
+* masque les classes concrètes utilisées et leur mode de création
+https://en.wikipedia.org/wiki/Structural_pattern[Patrons de structure]:: organisation des relations entre classes
+https://en.wikipedia.org/wiki/Behavioral_pattern[Patrons de comportement]:: communication/collaboration entre objets
